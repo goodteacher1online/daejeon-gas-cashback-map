@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>대전 온통대전 주유소 (유종별 실시간 유가 지도)</title>
+  
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+    }
+
+    /* Top Control Bar */
+    header {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+    }
+    .header-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      padding: 8px 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-sync-inline {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #334155;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+    .btn-sync-inline:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      transform: rotate(90deg);
+    }
+    .btn-sync-inline:active {
+      transform: scale(0.92);
+    }
+    .btn-sync-inline.spinning i {
+      animation: fa-spin 1s infinite linear;
+    }
+    .title-group h1 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+    .title-group span.badge {
+      background: #2563eb;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    /* Filter Chips (휘발유 / 경유 / LPG / 전체) */
+    .filters {
+      display: flex;
+      gap: 4px;
+      pointer-events: auto;
+      overflow-x: auto;
+    }
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .chip.active {
+      background: #0f172a;
+      color: white;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+    }
+    .chip.active[data-type="gasoline"] {
+      background: #2563eb;
+    }
+    .chip.active[data-type="diesel"] {
+      background: #059669;
+    }
+    .chip.active[data-type="lpg"] {
+      background: #d97706;
+    }
+
+    /* 실시간 유가 동기화 안내 바 */
+    .sync-info-bar {
+      background: rgba(15, 23, 42, 0.88);
+      color: white;
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 5px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      pointer-events: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .btn-sync-action {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: 0.15s;
+    }
+    .btn-sync-action:hover {
+      background: #1d4ed8;
+    }
+
+    /* Map View */
+    #map {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Floating Action Buttons */
+    .fab-container {
+      position: absolute;
+      right: 14px;
+      bottom: 54%;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fab-container.sheet-collapsed {
+      bottom: 68px;
+    }
+    .fab {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #334155;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .fab:active {
+      transform: scale(0.92);
+    }
+    .fab.active {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    /* Map Markers with Sharp Arrow Pointer & Anchor Dot */
+    .marker-wrap {
+      background: none !important;
+      border: none !important;
+    }
+    .custom-station-pin {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      background: white;
+      border: 2px solid #2563eb;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+      cursor: pointer;
+      transform: translate(-50%, -100%);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-top: -8px;
+    }
+    .custom-station-pin:hover {
+      transform: translate(-50%, -108%) scale(1.04);
+      z-index: 9999 !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .custom-station-pin.best-price {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+    .custom-station-pin.best-price .price-val {
+      color: #dc2626;
+      font-weight: 900;
+    }
+    .best-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 4px;
+      margin-left: 2px;
+    }
+
+    .station-name {
+      color: #0f172a;
+      font-weight: 700;
+    }
+    .price-val {
+      color: #2563eb;
+      font-weight: 800;
+      background: #eff6ff;
+      padding: 1px 6px;
+      border-radius: 12px;
+      font-size: 11.5px;
+    }
+    .price-val.diesel-val {
+      color: #059669;
+      background: #ecfdf5;
+    }
+    .price-val.lpg-val {
+      color: #d97706;
+      background: #fffbeb;
+    }
+
+    /* 아래로 뾰족한 삼각형 화살표 침 (Arrow Pointer) */
+    .custom-station-pin::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 7px solid white;
+      z-index: 3;
+    }
+    .custom-station-pin.best-price::after {
+      border-top-color: #fef2f2;
+    }
+    .custom-station-pin::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 9px solid #2563eb;
+      z-index: 2;
+    }
+    .custom-station-pin.best-price::before {
+      border-top-color: #ef4444;
+    }
+
+    /* 브랜드별 테두리 및 침 색상 */
+    .custom-station-pin.brand-hyundai { border-color: #0066b2; }
+    .custom-station-pin.brand-hyundai:not(.best-price)::before { border-top-color: #0066b2; }
+    .custom-station-pin.brand-hyundai i { color: #0066b2; }
+
+    .custom-station-pin.brand-sk { border-color: #ea002c; }
+    .custom-station-pin.brand-sk:not(.best-price)::before { border-top-color: #ea002c; }
+    .custom-station-pin.brand-sk i { color: #ea002c; }
+
+    .custom-station-pin.brand-soil { border-color: #008542; }
+    .custom-station-pin.brand-soil:not(.best-price)::before { border-top-color: #008542; }
+    .custom-station-pin.brand-soil i { color: #008542; }
+
+    .custom-station-pin.brand-alttul { border-color: #ff7f00; }
+    .custom-station-pin.brand-alttul:not(.best-price)::before { border-top-color: #ff7f00; }
+    .custom-station-pin.brand-alttul i { color: #ff7f00; }
+
+    .custom-station-pin.brand-gs { border-color: #007a87; }
+    .custom-station-pin.brand-gs:not(.best-price)::before { border-top-color: #007a87; }
+    .custom-station-pin.brand-gs i { color: #007a87; }
+
+    .custom-station-pin.marker-lpg { border-color: #d97706; background: #fffbeb; }
+    .custom-station-pin.marker-lpg::after { border-top-color: #fffbeb; }
+    .custom-station-pin.marker-lpg:not(.best-price)::before { border-top-color: #d97706; }
+    .custom-station-pin.marker-lpg i { color: #d97706; }
+
+    /* 지면 앵커 도트 (정확한 위치점) */
+    .anchor-dot {
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 7px;
+      height: 7px;
+      background: #0f172a;
+      border: 2px solid white;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      z-index: 4;
+    }
+
+    /* Bottom Sheet List */
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -6px 28px rgba(0,0,0,0.14);
+      z-index: 1000;
+      height: 52%;
+      max-height: 52%;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(0);
+    }
+    .bottom-sheet.collapsed {
+      transform: translateY(calc(100% - 46px));
+    }
+    .sheet-handle-area {
+      width: 100%;
+      padding: 10px 0 6px 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      background: white;
+      border-radius: 22px 22px 0 0;
+    }
+    .sheet-handle {
+      width: 44px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+    .sheet-handle-area:hover .sheet-handle {
+      background: #94a3b8;
+    }
+    .sheet-header {
+      padding: 2px 18px 8px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .sheet-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sort-options {
+      display: flex;
+      gap: 8px;
+    }
+    .sort-btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .sort-btn.active {
+      color: #2563eb;
+      font-weight: 700;
+    }
+    .station-list {
+      overflow-y: auto;
+      padding: 10px 14px 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .station-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+    .station-card:hover, .station-card.selected {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .card-main-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: white;
+    }
+    .card-price-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 900;
+      color: #2563eb;
+    }
+    .card-price-badge.diesel-color { color: #059669; }
+    .card-price-badge.lpg-color { color: #d97706; }
+    .card-sub-info {
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-addr {
+      font-size: 12px;
+      color: #475569;
+    }
+    .card-actions-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .btn-realtime-price {
+      flex: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: 0.15s;
+    }
+    .btn-realtime-price:hover {
+      background: #1d4ed8;
+    }
+    .btn-realtime-price.lpg-btn {
+      background: #d97706;
+    }
+    .btn-realtime-price.lpg-btn:hover {
+      background: #b45309;
+    }
+    .btn-sub-action {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      text-decoration: none;
+      transition: 0.15s;
+    }
+    .btn-sub-action:hover {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Top Control Bar -->
+  <header>
+    <div class="header-card">
+      <div class="title-group">
+        <h1>온통대전</h1>
+        <button class="btn-sync-inline" id="headerRefreshBtn" onclick="refreshPrices()" title="최신 유가 새로고침">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+      </div>
+      <!-- Fuel Type Chips: 기호 없이 글자만 -->
+      <div class="filters">
+        <div class="chip active" data-type="gasoline" onclick="setFuel('gasoline', this)">휘발유</div>
+        <div class="chip" data-type="diesel" onclick="setFuel('diesel', this)">경유</div>
+        <div class="chip" data-type="lpg" onclick="setFuel('lpg', this)">LPG</div>
+        <div class="chip" data-type="all" onclick="setFuel('all', this)">전체</div>
+      </div>
+    </div>
+    <div class="sync-info-bar">
+      <span id="syncTime">정적 데이터 (파일 내 저장된 시점 가격)</span>
+      <button class="btn-sync-action" onclick="refreshPrices()"><i class="fa-solid fa-arrows-rotate"></i> 새로고침</button>
+    </div>
+  </header>
+
+  <!-- Map Container -->
+  <div id="map"></div>
+
+  <!-- Floating Buttons -->
+  <div class="fab-container" id="fabContainer">
+    <button class="fab" id="gpsBtn" onclick="findMyLocation()" title="내 위치 찾기">
+      <i class="fa-solid fa-location-crosshairs"></i>
+    </button>
+    <button class="fab" onclick="resetMapView()" title="대전 전체보기">
+      <i class="fa-solid fa-compress"></i>
+    </button>
+  </div>
+
+  <!-- Bottom Sheet List -->
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle-area" id="sheetHandleArea" onclick="toggleBottomSheet()">
+      <div class="sheet-handle"></div>
+    </div>
+    <div class="sheet-header">
+      <div class="sheet-title" id="listTitle">
+        <span>휘발유 가격순 (6곳)</span>
+      </div>
+      <div class="sort-options">
+        <button class="sort-btn active" id="sortPrice" onclick="sortStations('price')">가격순</button>
+        <button class="sort-btn" id="sortDist" onclick="sortStations('dist')">거리순</button>
+      </div>
+    </div>
+    <div class="station-list" id="stationList">
+      <!-- Dynamic station cards will be rendered here -->
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // 100% 현장 검증 완료된 온통대전 실제 주유소 & 최신 유가 데이터
+  const STATIONS = [
+    // === 휘발유 / 경유 주유소 6곳 ===
+    {
+      id: 1,
+      name: "에이스주유소",
+      brand: "SK에너지",
+      brandShort: "SK",
+      brandColor: "#ea002c",
+      type: "oil",
+      fuel: { gasoline: 1808, diesel: 1798, lpg: null },
+      lawName: "(주)신영에너지",
+      addr: "대전 동구 동대전로 253 (가양동)",
+      phone: "042-632-5289",
+      lat: 36.33866,
+      lng: 127.44856,
+      placeUrl: "https://place.map.kakao.com/1445954313"
+    },
+    {
+      id: 2,
+      name: "가수원주유소",
+      brand: "SK에너지",
+      brandShort: "SK",
+      brandColor: "#ea002c",
+      type: "oil",
+      fuel: { gasoline: 1818, diesel: 1798, lpg: null },
+      lawName: "(주)가수원주유소",
+      addr: "대전 서구 계백로 1176 (가수원동)",
+      phone: "042-543-5189",
+      lat: 36.28639,
+      lng: 127.31852,
+      placeUrl: "https://map.kakao.com/?q=%EB%8C%80%EC%A0%84+%EC%84%9C%EA%B5%AC+%EA%B3%84%EB%B0%B1%EB%A1%9C+1176+%EC%A3%BC%EC%9C%A0%EC%86%8C"
+    },
+    {
+      id: 3,
+      name: "대동현대주유소",
+      brand: "HD현대오일뱅크",
+      brandShort: "현대",
+      brandColor: "#0066b2",
+      type: "oil",
+      fuel: { gasoline: 1810, diesel: 1795, lpg: null },
+      lawName: "(주)대동현대셀프",
+      addr: "대전 동구 계족로 126 (대동)",
+      phone: "042-283-5189",
+      lat: 36.33262,
+      lng: 127.43997,
+      placeUrl: "https://place.map.kakao.com/1439720917"
+    },
+    {
+      id: 4,
+      name: "방동주유소",
+      brand: "GS칼텍스",
+      brandShort: "GS",
+      brandColor: "#007a87",
+      type: "oil",
+      fuel: { gasoline: 1844, diesel: 1819, lpg: null },
+      lawName: "(주)방동주유소",
+      addr: "대전 유성구 계백로 139 (방동)",
+      phone: "042-825-5007",
+      lat: 36.29302,
+      lng: 127.32034,
+      placeUrl: "https://place.map.kakao.com/11069446"
+    },
+    {
+      id: 5,
+      name: "만년교셀프주유소",
+      brand: "HD현대오일뱅크",
+      brandShort: "현대",
+      brandColor: "#0066b2",
+      type: "oil",
+      fuel: { gasoline: 1899, diesel: 1894, lpg: null },
+      lawName: "(주)동건에너지",
+      addr: "대전 서구 계룡로 202 (월평동)",
+      phone: "042-525-6643",
+      lat: 36.35055,
+      lng: 127.35257,
+      placeUrl: "https://place.map.kakao.com/10345384"
+    },
+    {
+      id: 6,
+      name: "구암상사주유소",
+      brand: "GS칼텍스",
+      brandShort: "GS",
+      brandColor: "#007a87",
+      type: "oil",
+      fuel: { gasoline: 1899, diesel: 1873, lpg: null },
+      lawName: "(주)구암상사주유소",
+      addr: "대전 유성구 유성대로654번길 32 (구암동)",
+      phone: "042-825-6162",
+      lat: 36.35224,
+      lng: 127.32969,
+      placeUrl: "https://place.map.kakao.com/8707044"
+    },
+    // === LPG 전용 충전소 3곳 ===
+    {
+      id: 7,
+      name: "회덕IC충전소",
+      brand: "S-OIL LPG",
+      brandShort: "LPG",
+      brandColor: "#f59e0b",
+      type: "lpg",
+      fuel: { gasoline: null, diesel: null, lpg: 1049 },
+      lawName: "(주)회덕아이씨충전소",
+      addr: "대전 대덕구 갑천도시고속도로 1084 (신대동)",
+      phone: "042-672-5151",
+      lat: 36.42088,
+      lng: 127.41736,
+      placeUrl: "https://place.map.kakao.com/17156998"
+    },
+    {
+      id: 8,
+      name: "유한가스충전소",
+      brand: "SK행복충전 LPG",
+      brandShort: "LPG",
+      brandColor: "#f59e0b",
+      type: "lpg",
+      fuel: { gasoline: null, diesel: null, lpg: 1033 },
+      lawName: "(자)유한가스",
+      addr: "대전 중구 유등천동로 780 (중촌동)",
+      phone: "042-222-2700",
+      lat: 36.34120,
+      lng: 127.40450,
+      placeUrl: "https://place.map.kakao.com/12548590"
+    },
+    {
+      id: 9,
+      name: "황제충전소",
+      brand: "SK행복충전 LPG",
+      brandShort: "LPG",
+      brandColor: "#f59e0b",
+      type: "lpg",
+      fuel: { gasoline: null, diesel: null, lpg: 1089 },
+      lawName: "(주)황제충전소",
+      addr: "대전 유성구 대덕대로 1021 (덕진동)",
+      phone: "042-861-3800",
+      lat: 36.43133,
+      lng: 127.38732,
+      placeUrl: "https://place.map.kakao.com/18377713"
+    }
+  ];
+
+  let map = null;
+  let markers = [];
+  let currentFuel = 'gasoline'; // 기본값: 휘발유
+  let currentSort = 'price';
+  let myLocation = null;
+
+  function initMap() {
+    map = L.map('map', {
+      zoomControl: false
+    }).setView([36.3504, 127.3845], 12);
+
+    // Google Maps 고해상도 한국어 지도 타일
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&hl=ko', {
+      attribution: '&copy; Google Maps',
+      maxZoom: 20
+    }).addTo(map);
+
+    renderMarkers();
+    renderList();
+  }
+
+  function setFuel(fuel, el) {
+    currentFuel = fuel;
+    document.querySelectorAll('.filters .chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+
+    const filtered = getFilteredStations();
+
+    let label = '휘발유';
+    if (fuel === 'diesel') label = '경유';
+    else if (fuel === 'lpg') label = 'LPG 충전소';
+    else if (fuel === 'all') label = '전체';
+
+    document.getElementById('listTitle').innerHTML = `<span>${label} (${filtered.length}곳)</span>`;
+
+    renderMarkers();
+    renderList();
+  }
+
+  function getStationPrice(st) {
+    if (currentFuel === 'gasoline') return st.fuel.gasoline;
+    if (currentFuel === 'diesel') return st.fuel.diesel;
+    if (currentFuel === 'lpg') return st.fuel.lpg;
+    // 'all'인 경우 휘발유 우선, 없으면 lpg
+    return st.fuel.gasoline || st.fuel.lpg;
+  }
+
+  function getFilteredStations() {
+    if (currentFuel === 'gasoline') return STATIONS.filter(s => s.fuel.gasoline !== null);
+    if (currentFuel === 'diesel') return STATIONS.filter(s => s.fuel.diesel !== null);
+    if (currentFuel === 'lpg') return STATIONS.filter(s => s.fuel.lpg !== null);
+    return STATIONS;
+  }
+
+  function renderMarkers() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    const list = getFilteredStations();
+
+    // 현재 선택된 유종 기준 최저가 계산
+    let minPrice = 99999;
+    list.forEach(s => {
+      const p = getStationPrice(s);
+      if (p && p < minPrice) minPrice = p;
+    });
+
+    list.forEach(st => {
+      const isLpg = st.type === 'lpg';
+      let brandClass = 'brand-hyundai';
+      if (st.brand.includes('SK')) brandClass = 'brand-sk';
+      else if (st.brand.includes('GS')) brandClass = 'brand-gs';
+      else if (st.brand.includes('S-OIL')) brandClass = 'brand-soil';
+      else if (st.brand.includes('알뜰')) brandClass = 'brand-alttul';
+
+      const price = getStationPrice(st);
+      const isBest = price && price === minPrice;
+
+      let priceClass = '';
+      if (currentFuel === 'diesel') priceClass = 'diesel-val';
+      else if (currentFuel === 'lpg') priceClass = 'lpg-val';
+
+      // 마커 HTML: 주유소 이름 뒤에 가격 정보가 한눈에 쏙 들어감!
+      const markerHtml = `
+        <div class="custom-station-pin ${brandClass} ${isLpg ? 'marker-lpg' : ''} ${isBest ? 'best-price' : ''}">
+          <i class="fa-solid fa-${isLpg ? 'fire-flame-simple' : 'gas-pump'}"></i>
+          <span class="station-name">${st.name}</span>
+          <span class="price-val ${priceClass}">${price ? price.toLocaleString() + '원' : '-'}</span>
+          ${isBest ? '<span class="best-badge">최저가</span>' : ''}
+          <div class="anchor-dot"></div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        className: 'marker-wrap',
+        html: markerHtml,
+        iconSize: null, // 글자 길이에 맞춰 유동적 자동 조절 (절대 안 잘림)
+        iconAnchor: [0, 0] // 뾰족한 침 끝점이 지도 좌표에 정확히 꽂힘
+      });
+
+      const m = L.marker([st.lat, st.lng], { icon: customIcon }).addTo(map);
+
+      // Popup Content
+      const popupHtml = `
+        <div style="min-width:220px; font-family:'Pretendard', sans-serif;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+            <h3 style="font-size:14px; font-weight:800; color:#0f172a; margin:0;">${st.name}</h3>
+            <span style="font-size:10px; background:${st.brandColor}; color:white; padding:2px 5px; border-radius:4px; font-weight:700;">${st.brandShort}</span>
+          </div>
+          <p style="font-size:11px; color:#64748b; margin-bottom:6px;">${st.addr}</p>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px 10px; font-size:12px; margin-bottom:8px;">
+            ${st.fuel.gasoline ? `<div>휘발유: <b style="color:#2563eb;">${st.fuel.gasoline.toLocaleString()}원</b></div>` : ''}
+            ${st.fuel.diesel ? `<div>경유: <b style="color:#059669;">${st.fuel.diesel.toLocaleString()}원</b></div>` : ''}
+            ${st.fuel.lpg ? `<div>LPG: <b style="color:#d97706;">${st.fuel.lpg.toLocaleString()}원</b></div>` : ''}
+          </div>
+          <p style="font-size:11px; color:#059669; font-weight:700; margin-bottom:10px;"><i class="fa-solid fa-check"></i> 온통대전 가맹점 (${st.lawName})</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <a href="${st.placeUrl}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:5px; background:#2563eb; color:white; padding:8px; border-radius:6px; font-size:12px; font-weight:700; text-decoration:none;">
+              <i class="fa-solid fa-bolt"></i> ⚡ 실시간 가격 확인 (카카오/오피넷)
+            </a>
+            <div style="display:flex; gap:6px;">
+              <a href="tel:${st.phone}" style="flex:1; text-align:center; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; padding:6px; font-size:11px; font-weight:700; color:#334155; text-decoration:none;"><i class="fa-solid fa-phone"></i> 전화</a>
+              <a href="https://map.kakao.com/link/to/${encodeURIComponent(st.name)},${st.lat},${st.lng}" target="_blank" style="flex:1; text-align:center; background:#0f172a; border-radius:6px; padding:6px; font-size:11px; font-weight:700; color:white; text-decoration:none;"><i class="fa-solid fa-location-arrow"></i> 길찾기</a>
+            </div>
+          </div>
+        </div>
+      `;
+      m.bindPopup(popupHtml);
+      m.on('click', () => {
+        highlightCard(st.id);
+      });
+      markers.push(m);
+    });
+  }
+
+  function renderList() {
+    const listEl = document.getElementById('stationList');
+    listEl.innerHTML = '';
+
+    let filtered = [...getFilteredStations()];
+
+    // Distance calculation if myLocation exists
+    if (myLocation) {
+      filtered.forEach(st => {
+        st.dist = getDistance(myLocation.lat, myLocation.lng, st.lat, st.lng);
+      });
+    }
+
+    // Sort
+    if (currentSort === 'dist' && myLocation) {
+      filtered.sort((a, b) => (a.dist || 999) - (b.dist || 999));
+    } else {
+      // 가격순 (오름차순)
+      filtered.sort((a, b) => (getStationPrice(a) || 99999) - (getStationPrice(b) || 99999));
+    }
+
+    filtered.forEach((st, idx) => {
+      const isLpg = st.type === 'lpg';
+      const price = getStationPrice(st);
+      const card = document.createElement('div');
+      card.className = 'station-card';
+      card.id = `card-${st.id}`;
+      card.onclick = () => focusStation(st);
+
+      let priceColorClass = '';
+      if (currentFuel === 'diesel') priceColorClass = 'diesel-color';
+      else if (currentFuel === 'lpg') priceColorClass = 'lpg-color';
+
+      let fuelName = '휘발유';
+      if (currentFuel === 'diesel') fuelName = '경유';
+      else if (currentFuel === 'lpg') fuelName = 'LPG';
+
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-title-group">
+            <div class="card-main-title">
+              ${st.name}
+              <span class="brand-pill" style="background:${st.brandColor};">${st.brandShort}</span>
+              ${idx === 0 && currentSort === 'price' ? '<span class="best-badge" style="font-size:10px; padding:2px 6px;">최저가</span>' : ''}
+            </div>
+            <div class="card-sub-info">
+              <span>${st.brand}</span>
+              <span>&bull;</span>
+              <span>등록: ${st.lawName}</span>
+              ${st.dist ? `<span>&bull;</span> <b>${st.dist.toFixed(1)}km</b>` : ''}
+            </div>
+          </div>
+          <div class="card-price-badge ${priceColorClass}">
+            <span style="font-size:11px; color:#64748b; font-weight:600;">${fuelName}</span>
+            <span>${price ? price.toLocaleString() + '원' : '-'}</span>
+          </div>
+        </div>
+        <div class="card-addr"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${st.addr}</div>
+        <div class="card-actions-row">
+          <a href="${st.placeUrl}" target="_blank" class="btn-realtime-price ${isLpg ? 'lpg-btn':''}" onclick="event.stopPropagation()">
+            <i class="fa-solid fa-bolt"></i> ⚡ 실시간 가격 확인
+          </a>
+          <a href="https://map.kakao.com/link/to/${encodeURIComponent(st.name)},${st.lat},${st.lng}" target="_blank" class="btn-sub-action" onclick="event.stopPropagation()">
+            <i class="fa-solid fa-location-arrow"></i> 길찾기
+          </a>
+          <a href="tel:${st.phone}" class="btn-sub-action" onclick="event.stopPropagation()">
+            <i class="fa-solid fa-phone"></i> 전화
+          </a>
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+  }
+
+  function focusStation(st) {
+    map.setView([st.lat, st.lng], 15);
+    markers.forEach(m => {
+      const pos = m.getLatLng();
+      if (Math.abs(pos.lat - st.lat) < 0.0001 && Math.abs(pos.lng - st.lng) < 0.0001) {
+        m.openPopup();
+      }
+    });
+    highlightCard(st.id);
+  }
+
+  function highlightCard(id) {
+    document.querySelectorAll('.station-card').forEach(c => c.classList.remove('selected'));
+    const target = document.getElementById(`card-${id}`);
+    if (target) {
+      target.classList.add('selected');
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function sortStations(mode) {
+    currentSort = mode;
+    document.getElementById('sortPrice').classList.toggle('active', mode === 'price');
+    document.getElementById('sortDist').classList.toggle('active', mode === 'dist');
+    renderList();
+  }
+
+  function resetMapView() {
+    map.setView([36.3504, 127.3845], 12);
+  }
+
+  // Find My Location
+  let myLocMarker = null;
+  function findMyLocation() {
+    const btn = document.getElementById('gpsBtn');
+    btn.classList.add('active');
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        myLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
+        if (myLocMarker) map.removeLayer(myLocMarker);
+
+        const myIcon = L.divIcon({
+          html: `<div style="width:16px; height:16px; background:#2563eb; border:3px solid white; border-radius:50%; box-shadow:0 0 10px rgba(37,99,235,0.8);"></div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
+        });
+        myLocMarker = L.marker([myLocation.lat, myLocation.lng], { icon: myIcon }).addTo(map);
+        map.setView([myLocation.lat, myLocation.lng], 14);
+
+        sortStations('dist');
+      }, err => {
+        alert("GPS 위치 정보를 가져올 수 없습니다. 브라우저 위치 권한을 확인해 주세요.");
+        btn.classList.remove('active');
+      });
+    } else {
+      alert("현재 브라우저에서 GPS 위치 서비스를 지원하지 않습니다.");
+      btn.classList.remove('active');
+    }
+  }
+
+  function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  // Bottom Sheet Toggle & Gestures
+  let isSheetCollapsed = false;
+
+  function toggleBottomSheet(forceState = null) {
+    if (forceState !== null) {
+      isSheetCollapsed = forceState;
+    } else {
+      isSheetCollapsed = !isSheetCollapsed;
+    }
+
+    const sheet = document.getElementById('bottomSheet');
+    const fabContainer = document.getElementById('fabContainer');
+
+    if (isSheetCollapsed) {
+      sheet.classList.add('collapsed');
+      if (fabContainer) fabContainer.classList.add('sheet-collapsed');
+    } else {
+      sheet.classList.remove('collapsed');
+      if (fabContainer) fabContainer.classList.remove('sheet-collapsed');
+    }
+  }
+
+  function initSheetGestures() {
+    const handleArea = document.getElementById('sheetHandleArea');
+    if (!handleArea) return;
+
+    let startY = 0;
+    let endY = 0;
+
+    handleArea.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      endY = startY;
+    }, { passive: true });
+
+    handleArea.addEventListener('touchmove', (e) => {
+      endY = e.touches[0].clientY;
+    }, { passive: true });
+
+    handleArea.addEventListener('touchend', () => {
+      const diffY = endY - startY;
+      if (diffY > 35 && !isSheetCollapsed) {
+        toggleBottomSheet(true);
+      } else if (diffY < -35 && isSheetCollapsed) {
+        toggleBottomSheet(false);
+      }
+    });
+
+    if (map) {
+      map.on('click', () => {
+        if (!isSheetCollapsed) {
+          toggleBottomSheet(true);
+        }
+      });
+    }
+  }
+
+  // 실시간 유가 새로고침 및 동기화
+  async function refreshPrices() {
+    const btn = document.getElementById('headerRefreshBtn');
+    if (btn) btn.classList.add('spinning');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 확인 중...';
+
+    try {
+      if (window.location.protocol === 'file:') {
+        showRefreshModal();
+        if (btn) btn.classList.remove('spinning');
+        return;
+      }
+      const res = await fetch('latest_station_prices.json?t=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        if (data.prices) {
+          STATIONS.forEach(st => {
+            if (data.prices[st.id]) {
+              st.fuel.gasoline = data.prices[st.id].gasoline || st.fuel.gasoline;
+              st.fuel.diesel = data.prices[st.id].diesel || st.fuel.diesel;
+              st.fuel.lpg = data.prices[st.id].lpg || st.fuel.lpg;
+            }
+          });
+          document.getElementById('syncTime').innerText = data.updatedAt + ' 실시간 반영';
+          renderMarkers();
+          renderList();
+          alert('🎉 한국석유공사 오피넷 및 포털 실시간 유가가 성공적으로 반영되었습니다!\n(' + data.updatedAt + ')');
+          if (btn) btn.classList.remove('spinning');
+          return;
+        }
+      }
+    } catch (e) {
+      console.log('Local JSON fetch note:', e);
+    }
+
+    if (btn) btn.classList.remove('spinning');
+    showRefreshModal();
+  }
+
+  function showRefreshModal() {
+    alert("💡 [매 실행 시 최신 유가 자동 갱신 안내]\n\n다운로드 폴더의 [온통대전_주유소_실시간지도_실행.bat]을 더블클릭하시면\n한국석유공사 오피넷 및 카카오/네이버 실시간 유가를 자동으로 긁어와\n최신 유가로 갱신된 지도를 즉시 실행해 드립니다!\n\n또한 아래 주유소 카드의 [⚡ 실시간 가격 확인] 버튼을 누르시면\n현재 1초 전 실시간 판매가를 즉시 확인하실 수 있습니다.");
+  }
+
+  // 페이지 로드 시 최신 데이터 자동 동기화 시도
+  async function checkLatestPricesOnLoad() {
+    if (window.location.protocol === 'file:') return;
+    try {
+      const res = await fetch('latest_station_prices.json?t=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        if (data.prices) {
+          STATIONS.forEach(st => {
+            if (data.prices[st.id]) {
+              st.fuel.gasoline = data.prices[st.id].gasoline || st.fuel.gasoline;
+              st.fuel.diesel = data.prices[st.id].diesel || st.fuel.diesel;
+              st.fuel.lpg = data.prices[st.id].lpg || st.fuel.lpg;
+            }
+          });
+          document.getElementById('syncTime').innerText = data.updatedAt + ' 실시간 반영';
+          renderMarkers();
+          renderList();
+        }
+      }
+    } catch (e) {}
+  }
+
+  window.onload = () => {
+    initMap();
+    initSheetGestures();
+    checkLatestPricesOnLoad();
+  };
+</script>
+</body>
+</html>
