@@ -464,7 +464,7 @@
       margin-top: 4px;
     }
     .btn-realtime-price {
-      flex: 2;
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -473,11 +473,13 @@
       color: white;
       border: none;
       border-radius: 8px;
-      padding: 8px 10px;
+      padding: 8px 6px;
       font-size: 12px;
       font-weight: 700;
       text-decoration: none;
       transition: 0.15s;
+      word-break: keep-all;
+      text-align: center;
     }
     .btn-realtime-price:hover {
       background: #1d4ed8;
@@ -497,12 +499,13 @@
       background: white;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
-      padding: 8px 8px;
+      padding: 8px 6px;
       font-size: 12px;
       font-weight: 700;
       color: #334155;
       text-decoration: none;
       transition: 0.15s;
+      word-break: keep-all;
     }
     .btn-sub-action:hover {
       background: #f1f5f9;
@@ -904,7 +907,7 @@
         <div class="card-addr"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${st.addr}</div>
         <div class="card-actions-row">
           <a href="${st.placeUrl}" target="_blank" class="btn-realtime-price ${isLpg ? 'lpg-btn':''}" onclick="event.stopPropagation()">
-            <i class="fa-solid fa-bolt"></i> ⚡ 실시간 가격 확인
+            <i class="fa-solid fa-bolt"></i> 실시간 가격
           </a>
           <a href="https://map.kakao.com/link/to/${encodeURIComponent(st.name)},${st.lat},${st.lng}" target="_blank" class="btn-sub-action" onclick="event.stopPropagation()">
             <i class="fa-solid fa-location-arrow"></i> 길찾기
