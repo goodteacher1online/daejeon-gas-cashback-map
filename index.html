@@ -65,33 +65,6 @@
       align-items: center;
       gap: 5px;
     }
-    .btn-sync-inline {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #334155;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      flex-shrink: 0;
-    }
-    .btn-sync-inline:hover {
-      background: #e2e8f0;
-      color: #0f172a;
-      transform: rotate(90deg);
-    }
-    .btn-sync-inline:active {
-      transform: scale(0.92);
-    }
-    .btn-sync-inline.spinning i {
-      animation: fa-spin 1s infinite linear;
-    }
     .title-group h1 {
       font-size: 14px;
       font-weight: 800;
@@ -142,39 +115,6 @@
     }
     .chip.active[data-type="lpg"] {
       background: #d97706;
-    }
-
-    /* 실시간 유가 동기화 안내 바 */
-    .sync-info-bar {
-      background: rgba(15, 23, 42, 0.88);
-      color: white;
-      backdrop-filter: blur(8px);
-      border-radius: 12px;
-      padding: 5px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      font-weight: 600;
-      pointer-events: auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    .btn-sync-action {
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 10.5px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: 0.15s;
-    }
-    .btn-sync-action:hover {
-      background: #1d4ed8;
     }
 
     /* Map View */
@@ -413,6 +353,11 @@
       justify-content: space-between;
       border-bottom: 1px solid #f1f5f9;
     }
+    .sheet-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
     .sheet-title {
       font-size: 13px;
       font-weight: 800;
@@ -420,6 +365,14 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+    .last-sync-time {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .last-sync-time:empty {
+      display: none;
     }
     .sort-options {
       display: flex;
@@ -564,9 +517,6 @@
     <div class="header-card">
       <div class="title-group">
         <h1>온통대전</h1>
-        <button class="btn-sync-inline" id="headerRefreshBtn" onclick="refreshPrices()" title="최신 유가 새로고침">
-          <i class="fa-solid fa-arrows-rotate"></i>
-        </button>
       </div>
       <!-- Fuel Type Chips: 기호 없이 글자만 -->
       <div class="filters">
@@ -575,10 +525,6 @@
         <div class="chip" data-type="lpg" onclick="setFuel('lpg', this)">LPG</div>
         <div class="chip" data-type="all" onclick="setFuel('all', this)">전체</div>
       </div>
-    </div>
-    <div class="sync-info-bar">
-      <span id="syncTime">2026.09.05 01:24 실시간 반영</span>
-      <button class="btn-sync-action" onclick="refreshPrices()"><i class="fa-solid fa-arrows-rotate"></i> 새로고침</button>
     </div>
   </header>
 
@@ -601,8 +547,11 @@
       <div class="sheet-handle"></div>
     </div>
     <div class="sheet-header">
-      <div class="sheet-title" id="listTitle">
-        <span>휘발유 가격순 (6곳)</span>
+      <div class="sheet-title-group">
+        <div class="sheet-title" id="listTitle">
+          <span>휘발유 가격순 (6곳)</span>
+        </div>
+        <span class="last-sync-time" id="syncTime"></span>
       </div>
       <div class="sort-options">
         <button class="sort-btn active" id="sortPrice" onclick="sortStations('price')">가격순</button>
@@ -1100,50 +1049,7 @@
     }
   }
 
-  // 실시간 유가 새로고침 및 동기화
-  async function refreshPrices() {
-    const btn = document.getElementById('headerRefreshBtn');
-    if (btn) btn.classList.add('spinning');
-    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 확인 중...';
-
-    try {
-      if (window.location.protocol === 'file:') {
-        showRefreshModal();
-        if (btn) btn.classList.remove('spinning');
-        return;
-      }
-      const res = await fetch('latest_station_prices.json?t=' + Date.now());
-      if (res.ok) {
-        const data = await res.json();
-        if (data.prices) {
-          STATIONS.forEach(st => {
-            if (data.prices[st.id]) {
-              st.fuel.gasoline = data.prices[st.id].gasoline || st.fuel.gasoline;
-              st.fuel.diesel = data.prices[st.id].diesel || st.fuel.diesel;
-              st.fuel.lpg = data.prices[st.id].lpg || st.fuel.lpg;
-            }
-          });
-          document.getElementById('syncTime').innerText = data.updatedAt + ' 실시간 반영';
-          renderMarkers();
-          renderList();
-          alert('🎉 한국석유공사 오피넷 및 포털 실시간 유가가 성공적으로 반영되었습니다!\n(' + data.updatedAt + ')');
-          if (btn) btn.classList.remove('spinning');
-          return;
-        }
-      }
-    } catch (e) {
-      console.log('Local JSON fetch note:', e);
-    }
-
-    if (btn) btn.classList.remove('spinning');
-    showRefreshModal();
-  }
-
-  function showRefreshModal() {
-    alert("💡 [매 실행 시 최신 유가 자동 갱신 안내]\n\n다운로드 폴더의 [온통대전_주유소_실시간지도_실행.bat]을 더블클릭하시면\n한국석유공사 오피넷 및 카카오/네이버 실시간 유가를 자동으로 긁어와\n최신 유가로 갱신된 지도를 즉시 실행해 드립니다!\n\n또한 아래 주유소 카드의 [⚡ 실시간 가격 확인] 버튼을 누르시면\n현재 1초 전 실시간 판매가를 즉시 확인하실 수 있습니다.");
-  }
-
-  // 페이지 로드 시 최신 데이터 자동 동기화 시도
+  // 페이지 로드 시 최신 데이터 자동 동기화 (GitHub Actions가 갱신한 latest_station_prices.json 반영)
   async function checkLatestPricesOnLoad() {
     if (window.location.protocol === 'file:') return;
     try {
@@ -1158,7 +1064,8 @@
               st.fuel.lpg = data.prices[st.id].lpg || st.fuel.lpg;
             }
           });
-          document.getElementById('syncTime').innerText = data.updatedAt + ' 실시간 반영';
+          const syncEl = document.getElementById('syncTime');
+          if (syncEl) syncEl.innerText = '최근 갱신: ' + data.updatedAt;
           renderMarkers();
           renderList();
         }

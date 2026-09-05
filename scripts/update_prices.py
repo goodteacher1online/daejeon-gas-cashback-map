@@ -11,6 +11,7 @@ from playwright.async_api import async_playwright
 sys.stdout.reconfigure(encoding='utf-8')
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+KST = datetime.timezone(datetime.timedelta(hours=9))
 
 TARGETS = [
     {"id": 1, "name": "에이스주유소", "url": "https://place.map.kakao.com/1445954313"},
@@ -35,7 +36,7 @@ def safe_parse(pat, text):
 async def fetch_prices():
     print("⚡ 온통대전 6개 주유소 및 3개 충전소의 최신 유가를 수집 중입니다...")
     prices = {}
-    now_str = datetime.datetime.now().strftime("%Y.%m.%d %H:%M")
+    now_str = datetime.datetime.now(KST).strftime("%Y.%m.%d %H:%M")
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
@@ -85,7 +86,7 @@ def update_html_file(html_path, prices, now_str):
             repl = rf'\g<1> gasoline: {g_str}, diesel: {d_str}, lpg: {l_str}\2'
             content = re.sub(pattern, repl, content)
 
-    content = re.sub(r'id="syncTime">[^<]*</span>', f'id="syncTime">{now_str} 실시간 반영</span>', content)
+    content = re.sub(r'id="syncTime">[^<]*</span>', f'id="syncTime">최근 갱신: {now_str}</span>', content)
 
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(content)
