@@ -951,15 +951,21 @@
   };
 
   function initVerification() {
+    // 🧹 과거 테스트 가짜 데이터 로컬스토리지 강제 영구 삭제
     try {
-      const saved = localStorage.getItem('daejeon_gas_verifications');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        Object.keys(parsed).forEach(k => {
-          verificationData[k] = parsed[k];
-        });
-      }
+      localStorage.removeItem('daejeon_gas_verifications');
+      // 구버전 임시 투표 키들도 함께 초기화
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('vote_st_') || k.startsWith('my_vote_')) {
+          localStorage.removeItem(k);
+        }
+      });
     } catch (e) {}
+
+    // 0건으로 완전 리셋
+    STATIONS.forEach(s => {
+      verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "" };
+    });
 
     if (typeof firebase !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.apiKey.length > 5 && !firebaseConfig.apiKey.includes('YOUR_')) {
       try {
@@ -968,15 +974,22 @@
         isFirebaseReady = true;
         console.log("🔥 Firebase Firestore 실시간 연동 성공!");
 
+        // Firestore 실시간 리스너 (Firestore에 저장된 '진짜 시민 데이터'만 표시)
         db.collection("daejeon_gas_verifications").onSnapshot(snapshot => {
+          // 깨끗하게 0으로 초기화 후 Firestore 실제 데이터만 매핑
+          STATIONS.forEach(s => {
+            verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "" };
+          });
           snapshot.forEach(doc => {
             const id = Number(doc.id);
             const d = doc.data();
-            verificationData[id] = {
-              oper: d.oper || 0,
-              inoper: d.inoper || 0,
-              lastTime: d.lastTime || "방금"
-            };
+            if (verificationData[id]) {
+              verificationData[id] = {
+                oper: d.oper || 0,
+                inoper: d.inoper || 0,
+                lastTime: d.lastTime || ""
+              };
+            }
           });
           renderMarkers();
           renderList();
