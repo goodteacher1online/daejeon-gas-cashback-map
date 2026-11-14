@@ -90,6 +90,11 @@
       gap: 4px;
       pointer-events: auto;
       overflow-x: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    .filters::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Edge */
     }
     .chip {
       background: #f1f5f9;
@@ -671,50 +676,163 @@
       line-height: 1.4;
     }
 
-    /* 🔍 신규 장소 제보 버튼 및 살펴볼 곳 칩 스타일 */
-    .btn-add-candidate {
+    /* 🔍 살펴볼 곳 & 새 정보 제보 통합 버튼 스타일 */
+    .btn-unified-candidate {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: #0f172a;
+      background: #7e22ce;
       color: #ffffff;
       border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 6px 11px;
+      border-radius: 12px;
       font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.15s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
       white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(126, 34, 206, 0.25);
     }
-    .btn-add-candidate:hover {
-      background: #2563eb;
+    .btn-unified-candidate:hover {
+      background: #6b21a8;
+      transform: translateY(-1px);
     }
-    .chip.chip-candidate {
-      border-color: #c084fc;
-      color: #7e22ce;
-      background: #faf5ff;
-    }
-    .chip.chip-candidate.active {
-      background: #7e22ce;
-      color: #ffffff;
-      border-color: #7e22ce;
-    }
-    .candidate-count-badge {
+    .btn-unified-candidate .candidate-count-badge {
       display: inline-block;
       font-size: 9px;
       font-weight: 800;
       padding: 1px 5px;
       border-radius: 10px;
-      background: #e9d5ff;
+      background: #f3e8ff;
       color: #6b21a8;
-      margin-left: 2px;
       vertical-align: middle;
+      margin-left: 2px;
     }
-    .chip.chip-candidate.active .candidate-count-badge {
-      background: #ffffff;
+    @media (max-width: 440px) {
+      .btn-unified-candidate .btn-unified-label-long { display: none; }
+      .btn-unified-candidate .btn-unified-label-short { display: inline; }
+    }
+    @media (min-width: 441px) {
+      .btn-unified-candidate .btn-unified-label-long { display: inline; }
+      .btn-unified-candidate .btn-unified-label-short { display: none; }
+    }
+
+    /* 살펴볼 곳 & 제보 통합 모달 탭 및 목록 스타일 */
+    .cand-modal-tabs {
+      display: flex;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+      padding: 4px 8px 0 8px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .cand-tab-btn {
+      flex: 1;
+      padding: 9px 12px;
+      border: none;
+      background: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .cand-tab-btn:hover {
       color: #7e22ce;
+    }
+    .cand-tab-btn.active {
+      color: #7e22ce;
+      border-bottom: 2px solid #7e22ce;
+      background: white;
+      border-radius: 8px 8px 0 0;
+    }
+    .cand-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cand-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .cand-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cand-card-addr {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .cand-card-reason {
+      background: #faf5ff;
+      border: 1px solid #f3e8ff;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: #6b21a8;
+      line-height: 1.4;
+    }
+    .cand-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .cand-action-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .cand-action-btn.btn-yes:hover, .cand-action-btn.btn-yes.voted {
+      background: #f0fdf4;
+      border-color: #86efac;
+      color: #166534;
+    }
+    .cand-action-btn.btn-no:hover, .cand-action-btn.btn-no.voted {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+    .cand-action-btn.voted {
+      box-shadow: inset 0 0 0 1.5px currentColor;
+    }
+    .cand-action-btn.btn-map {
+      background: #f8fafc;
+      color: #2563eb;
+      border-color: #cbd5e1;
+      flex: 0 0 auto;
+      padding: 6px 10px;
+    }
+    .cand-action-btn.btn-map:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
     }
 
     /* 후보 주유소 마커 핀 스타일 */
@@ -1121,22 +1239,23 @@
   <!-- Top Control Bar -->
   <header>
     <div class="header-card">
-      <div class="title-group" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+      <div class="title-group">
         <h1>온통대전</h1>
-        <button class="btn-add-candidate" onclick="openCandidateModal()" title="새로운 온통대전 캐시백 주유소 제보하기">
-          <i class="fa-solid fa-plus"></i> 새 장소 제보
-        </button>
       </div>
-      <!-- Fuel Type Chips: 기호 없이 글자만 -->
+      <!-- Fuel Type Chips: 기호 없이 글자만 (휘발유 / 경유 / LPG / 전체) -->
       <div class="filters">
         <div class="chip active" data-type="gasoline" onclick="setFuel('gasoline', this)">휘발유</div>
         <div class="chip" data-type="diesel" onclick="setFuel('diesel', this)">경유</div>
         <div class="chip" data-type="lpg" onclick="setFuel('lpg', this)">LPG</div>
         <div class="chip" data-type="all" onclick="setFuel('all', this)">전체</div>
-        <div class="chip chip-candidate" data-type="candidates" onclick="setFuel('candidates', this)">
-          <i class="fa-solid fa-magnifying-glass-location"></i> 살펴볼 곳 <span id="candidateCountBadge" class="candidate-count-badge">0</span>
-        </div>
       </div>
+      <!-- 살펴볼 곳과 새 정보 제보를 하나로 합친 통합 버튼 -->
+      <button class="btn-unified-candidate" onclick="openCandidateModal('list')" title="살펴볼 곳 목록 확인 및 새 주유소 직접 제보">
+        <i class="fa-solid fa-magnifying-glass-location"></i>
+        <span class="btn-unified-label-long">살펴볼 곳 / 제보</span>
+        <span class="btn-unified-label-short">살펴볼 곳</span>
+        <span id="candidateCountBadge" class="candidate-count-badge">0</span>
+      </button>
     </div>
   </header>
 
@@ -1401,11 +1520,23 @@
   let candidateStations = [];
 
   function updateCandidateBadge() {
-    const badge = document.getElementById('candidateCountBadge');
-    if (!badge) return;
     const count = candidateStations.length;
-    badge.innerText = count;
-    badge.style.display = count > 0 ? 'inline-block' : 'none';
+    const badge = document.getElementById('candidateCountBadge');
+    if (badge) {
+      badge.innerText = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+    const modalBadge = document.getElementById('candModalCountBadge');
+    if (modalBadge) {
+      modalBadge.innerText = count;
+    }
+    const modal = document.getElementById('candidateModal');
+    if (modal && modal.classList.contains('show')) {
+      const listContent = document.getElementById('candTabContentList');
+      if (listContent && listContent.style.display !== 'none') {
+        renderCandidateListInModal();
+      }
+    }
   }
 
   function initVerification() {
@@ -1969,10 +2100,154 @@
   // ==========================================
   let resolvedCandCoords = null;
 
-  function openCandidateModal() {
+  function switchCandidateTab(tab) {
+    const btnList = document.getElementById('candTabBtnList');
+    const btnForm = document.getElementById('candTabBtnForm');
+    const contentList = document.getElementById('candTabContentList');
+    const contentForm = document.getElementById('candTabContentForm');
+    const footerList = document.getElementById('candFooterList');
+    const footerForm = document.getElementById('candFooterForm');
+
+    if (tab === 'form') {
+      if (btnList) btnList.classList.remove('active');
+      if (btnForm) btnForm.classList.add('active');
+      if (contentList) contentList.style.display = 'none';
+      if (contentForm) contentForm.style.display = 'block';
+      if (footerList) footerList.style.display = 'none';
+      if (footerForm) footerForm.style.display = 'flex';
+    } else {
+      if (btnList) btnList.classList.add('active');
+      if (btnForm) btnForm.classList.remove('active');
+      if (contentList) contentList.style.display = 'block';
+      if (contentForm) contentForm.style.display = 'none';
+      if (footerList) footerList.style.display = 'flex';
+      if (footerForm) footerForm.style.display = 'none';
+      renderCandidateListInModal();
+    }
+  }
+
+  function renderCandidateListInModal() {
+    const container = document.getElementById('candListContainer');
+    if (!container) return;
+
+    const countBadge = document.getElementById('candModalCountBadge');
+    if (countBadge) countBadge.innerText = candidateStations.length;
+
+    if (!candidateStations || candidateStations.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:32px 16px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; margin-top:6px;">
+          <i class="fa-solid fa-magnifying-glass-location" style="font-size:36px; color:#94a3b8; margin-bottom:10px; display:block;"></i>
+          <p style="font-size:14px; font-weight:800; color:#1e293b; margin-bottom:6px;">등록된 살펴볼 곳이 아직 없습니다.</p>
+          <p style="font-size:12px; color:#64748b; margin-bottom:14px; line-height:1.4;">온통대전(대전사랑카드) 캐시백이 적용되는 새로운 주유소를 발견하셨나요?<br>첫 번째로 직접 제보해보세요!</p>
+          <button class="loc-btn-primary" style="background:#7e22ce; margin:0 auto; padding:8px 16px; font-size:12px;" onclick="switchCandidateTab('form')">
+            <i class="fa-solid fa-plus"></i> 새 주유소 직접 제보하기
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    let html = `
+      <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:10px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#6b21a8; line-height:1.4; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <div>
+          <i class="fa-solid fa-circle-info"></i> <b>시민 발굴 검증 목록</b> (3명 투표 시 정식 등록)
+        </div>
+        <button class="btn-unified-candidate" style="padding:4px 8px; font-size:10px;" onclick="switchCandidateTab('form')">
+          <i class="fa-solid fa-plus"></i> 새 제보
+        </button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+    `;
+
+    candidateStations.forEach(c => {
+      const isApproved = (c.status === 'approved') || (c.votesYes >= 3);
+      const myVote = getMyCandVote(c.id);
+      const progressPct = Math.min(100, Math.round(((c.votesYes || 0) / 3) * 100));
+
+      html += `
+        <div class="cand-card">
+          <div class="cand-card-header">
+            <div class="cand-card-title">
+              <span>${escapeHtml(c.name)}</span>
+              <span class="brand-pill" style="background:#7e22ce;">${escapeHtml(c.brand || '제보')}</span>
+            </div>
+            ${isApproved ?
+              '<span class="loc-verify-status loc-ok" style="font-size:10px;"><i class="fa-solid fa-circle-check"></i> 3명 확인 (승격 완료)</span>' :
+              `<span class="loc-verify-status loc-warn" style="font-size:10px;"><i class="fa-solid fa-clock"></i> 확인 중 (${c.votesYes || 0}/3)</span>`
+            }
+          </div>
+
+          <div class="cand-card-addr">
+            <i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${escapeHtml(c.addr)}
+            ${c.phone ? ` <span style="color:#cbd5e1;">|</span> <i class="fa-solid fa-phone" style="color:#94a3b8;"></i> ${escapeHtml(c.phone)}` : ''}
+          </div>
+
+          <div class="cand-card-reason">
+            <i class="fa-solid fa-comment-dots"></i> "${escapeHtml(c.reason || '시민 신규 발견 제보')}"
+          </div>
+
+          <!-- 승격 진행 바 -->
+          <div style="margin:2px 0;">
+            <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:700; color:#64748b; margin-bottom:2px;">
+              <span>가맹점 자동 승격 진행도</span>
+              <span>${c.votesYes || 0} / 3표 (${progressPct}%)</span>
+            </div>
+            <div class="candidate-progress-bar" style="height:6px;">
+              <div class="candidate-progress-fill ${isApproved ? 'full' : ''}" style="width: ${progressPct}%;"></div>
+            </div>
+          </div>
+
+          <!-- 액션 버튼 그룹 (맞아요 / 아니에요 / 지도 보기) -->
+          <div class="cand-card-actions">
+            <button class="cand-action-btn btn-yes ${myVote === 'yes' ? 'voted' : ''}" onclick="voteCandidate('${c.id}', 'yes')" title="${myVote === 'yes' ? '클릭 시 투표 취소' : '캐시백 확인 투표'}">
+              <i class="fa-solid fa-thumbs-up"></i> 맞아요 <span style="font-weight:800;">${c.votesYes || 0}</span>
+            </button>
+            <button class="cand-action-btn btn-no ${myVote === 'no' ? 'voted' : ''}" onclick="voteCandidate('${c.id}', 'no')" title="${myVote === 'no' ? '클릭 시 투표 취소' : '불가 투표'}">
+              <i class="fa-solid fa-thumbs-down"></i> 아니에요 <span style="font-weight:800;">${c.votesNo || 0}</span>
+            </button>
+            <button class="cand-action-btn btn-map" onclick="focusCandidateOnMap('${c.id}')" title="지도에서 위치 보기">
+              <i class="fa-solid fa-map-location-dot"></i> 지도 보기
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+
+  function focusCandidateOnMap(candId) {
+    const cand = candidateStations.find(c => c.id === candId);
+    if (!cand) return;
+    closeCandidateModal();
+
+    // 'candidates' 모드로 전환하여 지도와 리스트 모두 후보 주유소에 맞춤
+    currentFuel = 'candidates';
+    document.querySelectorAll('.filters .chip').forEach(c => c.classList.remove('active'));
+    document.getElementById('listTitle').innerHTML = `<span>🔍 살펴볼 곳 (${candidateStations.length}곳)</span>`;
+    renderMarkers();
+    renderList();
+
+    if (cand.lat && cand.lng) {
+      map.setView([cand.lat, cand.lng], 16);
+      setTimeout(() => {
+        markers.forEach(m => {
+          const pos = m.getLatLng();
+          if (Math.abs(pos.lat - cand.lat) < 0.0001 && Math.abs(pos.lng - cand.lng) < 0.0001) {
+            m.openPopup();
+          }
+        });
+      }, 200);
+    }
+    showToast(`📍 '${cand.name}' 위치로 이동했습니다.`);
+  }
+
+  function openCandidateModal(initialTab = 'list') {
     if (window.event) window.event.stopPropagation();
     const modal = document.getElementById('candidateModal');
     if (modal) modal.classList.add('show');
+    switchCandidateTab(initialTab);
     resolvedCandCoords = null;
     const nameInput = document.getElementById('candNameInput');
     const addrInput = document.getElementById('candAddrInput');
@@ -2079,11 +2354,20 @@
 
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-plus"></i> 살펴볼 곳 등록';
-          closeCandidateModal();
 
-          const candChip = document.querySelector('.chip[data-type="candidates"]');
-          if (candChip) setFuel('candidates', candChip);
+          // 폼 초기화
+          const nameInput = document.getElementById('candNameInput');
+          const addrInput = document.getElementById('candAddrInput');
+          const phoneInput = document.getElementById('candPhoneInput');
+          const reasonInput = document.getElementById('candReasonInput');
+          if (nameInput) nameInput.value = '';
+          if (addrInput) addrInput.value = '';
+          if (phoneInput) phoneInput.value = '';
+          if (reasonInput) reasonInput.value = '';
+          resolvedCandCoords = null;
 
+          // 목록 탭으로 전환하여 직접 입력한 정보를 즉시 확인!
+          switchCandidateTab('list');
           showToast("🎉 새 주유소가 '살펴볼 곳'으로 등록되었습니다! 다른 시민 2명의 확인 투표가 더 모이면 자동으로 정식 등록됩니다.");
         })
         .catch(err => {
@@ -2096,10 +2380,17 @@
       candidateStations.push({ id: localId, ...candData });
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-plus"></i> 살펴볼 곳 등록';
-      closeCandidateModal();
+      const nameInput = document.getElementById('candNameInput');
+      const addrInput = document.getElementById('candAddrInput');
+      const phoneInput = document.getElementById('candPhoneInput');
+      const reasonInput = document.getElementById('candReasonInput');
+      if (nameInput) nameInput.value = '';
+      if (addrInput) addrInput.value = '';
+      if (phoneInput) phoneInput.value = '';
+      if (reasonInput) reasonInput.value = '';
+      resolvedCandCoords = null;
       updateCandidateBadge();
-      const candChip = document.querySelector('.chip[data-type="candidates"]');
-      if (candChip) setFuel('candidates', candChip);
+      switchCandidateTab('list');
       showToast("🎉 새 주유소가 '살펴볼 곳'으로 등록되었습니다! (로컬 모드)");
     }
   }
@@ -2135,6 +2426,7 @@
         db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
           .then(() => {
             localStorage.removeItem(voteKey);
+            renderCandidateListInModal();
             showToast("↩️ 확인 투표가 취소되었습니다.");
           })
           .catch(err => showToast("오류: " + err.message));
@@ -2144,6 +2436,7 @@
         localStorage.removeItem(voteKey);
         renderMarkers();
         renderList();
+        renderCandidateListInModal();
         showToast("↩️ 확인 투표가 취소되었습니다.");
       }
       return;
@@ -2181,6 +2474,7 @@
         db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
           .then(() => {
             localStorage.setItem(voteKey, type);
+            renderCandidateListInModal();
             if (willApprove) {
               showToast("🎉 축하합니다! 시민 3인 검증 완료로 정식 가맹점으로 자동 등록되었습니다!");
             } else {
@@ -2195,6 +2489,7 @@
         localStorage.setItem(voteKey, type);
         renderMarkers();
         renderList();
+        renderCandidateListInModal();
         if (willApprove) {
           showToast("🎉 축하합니다! 시민 3인 검증 완료로 정식 가맹점으로 자동 등록되었습니다!");
         } else {
@@ -2222,6 +2517,7 @@
       db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
         .then(() => {
           localStorage.setItem(voteKey, type);
+          renderCandidateListInModal();
           if (willApprove) {
             showToast("🎉 축하합니다! 시민 3인 확인 완료! 정식 가맹점으로 자동 등록되었습니다!");
           } else {
@@ -2236,6 +2532,7 @@
       localStorage.setItem(voteKey, type);
       renderMarkers();
       renderList();
+      renderCandidateListInModal();
       if (willApprove) {
         showToast("🎉 축하합니다! 시민 3인 확인 완료! 정식 가맹점으로 자동 등록되었습니다!");
       } else {
@@ -2561,7 +2858,7 @@
             <i class="fa-solid fa-magnifying-glass-location" style="font-size:36px; color:#c084fc; margin-bottom:12px;"></i>
             <div style="font-size:15px; font-weight:800; color:#1e293b; margin-bottom:6px;">등록된 '살펴볼 곳'이 아직 없습니다.</div>
             <div style="font-size:12px; color:#64748b; margin-bottom:16px;">새로 발견하신 온통대전 캐시백 주유소가 있다면 등록해주세요!</div>
-            <button class="btn-add-candidate" onclick="openCandidateModal()" style="margin:0 auto; padding:8px 16px; font-size:12px;">
+            <button class="btn-unified-candidate" onclick="openCandidateModal('form')" style="margin:0 auto; padding:8px 16px; font-size:12px;">
               <i class="fa-solid fa-plus"></i> 새 장소 제보하기
             </button>
           </div>
@@ -2998,82 +3295,108 @@
   </div>
 </div>
 
-<!-- 🔍 신규 주유소 제보 (살펴볼 곳 등록) 모달 -->
+<!-- 🔍 살펴볼 곳 및 새 정보 제보 통합 모달 -->
 <div id="candidateModal" class="loc-modal-overlay" onclick="closeCandidateModal(event)">
-  <div class="loc-modal" onclick="event.stopPropagation()">
-    <div class="loc-modal-header">
+  <div class="loc-modal" onclick="event.stopPropagation()" style="max-width:540px; max-height:88vh; display:flex; flex-direction:column;">
+    <div class="loc-modal-header" style="flex-shrink:0;">
       <div style="display:flex; align-items:center; gap:8px;">
-        <i class="fa-solid fa-magnifying-glass-plus" style="color:#7e22ce; font-size:16px;"></i>
-        <h3 style="margin:0; font-size:15px; font-weight:800; color:#0f172a;">새 주유소 제보 (살펴볼 곳 등록)</h3>
+        <i class="fa-solid fa-magnifying-glass-location" style="color:#7e22ce; font-size:16px;"></i>
+        <h3 style="margin:0; font-size:15px; font-weight:800; color:#0f172a;">살펴볼 곳 & 새 정보 제보</h3>
       </div>
       <button class="loc-modal-close" onclick="closeCandidateModal()">&times;</button>
     </div>
+
+    <!-- 탭 네비게이션: 살펴볼 곳 목록 vs 직접 입력 제보 -->
+    <div class="cand-modal-tabs">
+      <button id="candTabBtnList" class="cand-tab-btn active" onclick="switchCandidateTab('list')">
+        <i class="fa-solid fa-list-check"></i> 살펴볼 곳 목록 <span id="candModalCountBadge" class="candidate-count-badge">0</span>
+      </button>
+      <button id="candTabBtnForm" class="cand-tab-btn" onclick="switchCandidateTab('form')">
+        <i class="fa-solid fa-plus"></i> 새 주유소 직접 제보
+      </button>
+    </div>
     
-    <div class="loc-modal-body">
-      <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#6b21a8; line-height:1.4;">
-        <i class="fa-solid fa-circle-info"></i> 온통대전(대전사랑카드) 캐시백이 적용되는 새로운 주유소인가요?<br>
-        등록 시 <b>'미정 살펴볼 곳'</b>으로 등록되며, <b>시민 3명의 확인 투표</b>를 받으면 <b>정식 가맹점으로 자동 등록</b>됩니다!
+    <div class="loc-modal-body" style="overflow-y:auto; flex:1; padding:12px 14px;">
+      <!-- 탭 1: 직접 입력한 살펴볼 곳 정보 확인 & 투표 -->
+      <div id="candTabContentList" class="cand-tab-content">
+        <div id="candListContainer"></div>
       </div>
 
-      <div style="margin-bottom:10px;">
-        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
-          주유소 상호명 <span style="color:#ef4444;">*</span>
-        </label>
-        <input type="text" id="candNameInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 대덕테크노주유소">
-      </div>
-
-      <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <div style="flex:1;">
-          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">유종 구분</label>
-          <select id="candTypeSelect" class="loc-report-textarea" style="height:38px; padding:6px 10px;">
-            <option value="oil">일반 주유소 (휘발유/경유)</option>
-            <option value="lpg">LPG 충전소</option>
-          </select>
+      <!-- 탭 2: 새 주유소 직접 입력 제보 폼 -->
+      <div id="candTabContentForm" class="cand-tab-content" style="display:none;">
+        <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#6b21a8; line-height:1.4;">
+          <i class="fa-solid fa-circle-info"></i> 온통대전(대전사랑카드) 캐시백이 적용되는 새로운 주유소인가요?<br>
+          직접 제보 시 <b>'살펴볼 곳'</b>으로 등록되며, <b>시민 3명의 확인 투표</b>를 받으면 <b>정식 가맹점으로 자동 등록</b>됩니다!
         </div>
-        <div style="flex:1;">
-          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">정유사 브랜드</label>
-          <select id="candBrandSelect" class="loc-report-textarea" style="height:38px; padding:6px 10px;">
-            <option value="HD현대오일뱅크">HD현대오일뱅크</option>
-            <option value="SK에너지">SK에너지</option>
-            <option value="GS칼텍스">GS칼텍스</option>
-            <option value="S-OIL">S-OIL</option>
-            <option value="알뜰주유소">알뜰주유소</option>
-            <option value="자가상표/기타">자가상표/기타</option>
-          </select>
+
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+            주유소 상호명 <span style="color:#ef4444;">*</span>
+          </label>
+          <input type="text" id="candNameInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 대덕테크노주유소">
         </div>
-      </div>
 
-      <div style="margin-bottom:10px;">
-        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
-          도로명 주소 <span style="color:#ef4444;">*</span>
-        </label>
-        <div style="display:flex; gap:6px;">
-          <input type="text" id="candAddrInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 대전 유성구 대덕대로 1234">
-          <button type="button" class="loc-btn-secondary" onclick="searchCandidateAddress()" style="white-space:nowrap; padding:0 12px; font-size:11px;">
-            <i class="fa-solid fa-location-crosshairs"></i> 좌표 찾기
-          </button>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">유종 구분</label>
+            <select id="candTypeSelect" class="loc-report-textarea" style="height:38px; padding:6px 10px;">
+              <option value="oil">일반 주유소 (휘발유/경유)</option>
+              <option value="lpg">LPG 충전소</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">정유사 브랜드</label>
+            <select id="candBrandSelect" class="loc-report-textarea" style="height:38px; padding:6px 10px;">
+              <option value="HD현대오일뱅크">HD현대오일뱅크</option>
+              <option value="SK에너지">SK에너지</option>
+              <option value="GS칼텍스">GS칼텍스</option>
+              <option value="S-OIL">S-OIL</option>
+              <option value="알뜰주유소">알뜰주유소</option>
+              <option value="자가상표/기타">자가상표/기타</option>
+            </select>
+          </div>
         </div>
-        <div id="candGeoStatus" style="font-size:11px; color:#64748b; margin-top:4px;">주소를 입력 후 [좌표 찾기]를 누르거나 바로 등록하시면 자동 검색됩니다.</div>
-      </div>
 
-      <div style="margin-bottom:10px;">
-        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">전화번호 (선택)</label>
-        <input type="text" id="candPhoneInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 042-123-4567">
-      </div>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+            도로명 주소 <span style="color:#ef4444;">*</span>
+          </label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="candAddrInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 대전 유성구 대덕대로 1234">
+            <button type="button" class="loc-btn-secondary" onclick="searchCandidateAddress()" style="white-space:nowrap; padding:0 12px; font-size:11px;">
+              <i class="fa-solid fa-location-crosshairs"></i> 좌표 찾기
+            </button>
+          </div>
+          <div id="candGeoStatus" style="font-size:11px; color:#64748b; margin-top:4px;">주소를 입력 후 [좌표 찾기]를 누르거나 바로 등록하시면 자동 검색됩니다.</div>
+        </div>
 
-      <div>
-        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
-          제보 사유 / 결제 후기 <span style="color:#ef4444;">*</span>
-        </label>
-        <textarea id="candReasonInput" rows="2" class="loc-report-textarea" placeholder="예: 2026년 11월에 온통대전 카드로 주유 후 10% 캐시백 정상 적립된 것 확인했습니다."></textarea>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">전화번호 (선택)</label>
+          <input type="text" id="candPhoneInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 042-123-4567">
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+            제보 사유 / 결제 후기 <span style="color:#ef4444;">*</span>
+          </label>
+          <textarea id="candReasonInput" rows="2" class="loc-report-textarea" placeholder="예: 2026년 11월에 온통대전 카드로 주유 후 10% 캐시백 정상 적립된 것 확인했습니다."></textarea>
+        </div>
       </div>
     </div>
 
-    <div class="loc-modal-footer">
-      <button class="loc-btn-secondary" onclick="closeCandidateModal()">닫기</button>
-      <button id="candSubmitBtn" class="loc-btn-primary" style="background:#7e22ce;" onclick="submitCandidateStation()">
-        <i class="fa-solid fa-plus"></i> 살펴볼 곳 등록
-      </button>
+    <div class="loc-modal-footer" style="flex-shrink:0;">
+      <div id="candFooterList" style="display:flex; justify-content:space-between; width:100%;">
+        <button class="loc-btn-secondary" onclick="closeCandidateModal()">닫기</button>
+        <button class="loc-btn-primary" style="background:#7e22ce;" onclick="switchCandidateTab('form')">
+          <i class="fa-solid fa-plus"></i> 새 주유소 직접 제보하기
+        </button>
+      </div>
+      <div id="candFooterForm" style="display:none; justify-content:space-between; width:100%;">
+        <button class="loc-btn-secondary" onclick="switchCandidateTab('list')">목록으로 돌아가기</button>
+        <button id="candSubmitBtn" class="loc-btn-primary" style="background:#7e22ce;" onclick="submitCandidateStation()">
+          <i class="fa-solid fa-plus"></i> 살펴볼 곳 등록
+        </button>
+      </div>
     </div>
   </div>
 </div>
