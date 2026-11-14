@@ -20,6 +20,9 @@ TARGETS = [
     {"id": 4, "name": "방동주유소", "url": "https://place.map.kakao.com/11069446"},
     {"id": 5, "name": "만년교셀프주유소", "url": "https://place.map.kakao.com/10345384"},
     {"id": 6, "name": "구암상사주유소", "url": "https://place.map.kakao.com/8707044"},
+    {"id": 10, "name": "상서현대주유소", "url": "https://place.map.kakao.com/7928629"},
+    {"id": 11, "name": "대도주유소", "url": "https://place.map.kakao.com/18378756"},
+    {"id": 12, "name": "동아주유소", "url": "https://place.map.kakao.com/18377929"},
     {"id": 7, "name": "회덕IC충전소", "url": "https://place.map.kakao.com/17156998"},
     {"id": 8, "name": "유한가스충전소", "url": "https://place.map.kakao.com/12548590"},
     {"id": 9, "name": "황제충전소", "url": "https://place.map.kakao.com/18377713"}
@@ -34,7 +37,7 @@ def safe_parse(pat, text):
     return None
 
 async def fetch_prices():
-    print("⚡ 온통대전 6개 주유소 및 3개 충전소의 최신 유가를 수집 중입니다...")
+    print("⚡ 온통대전 9개 주유소 및 3개 충전소의 최신 유가를 수집 중입니다...")
     prices = {}
     now_str = datetime.datetime.now(KST).strftime("%Y.%m.%d %H:%M")
 

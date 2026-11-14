@@ -43,6 +43,27 @@
       "lpg": null,
       "updatedAt": "2026.11.14 11:09"
     },
+    "10": {
+      "name": "상서현대주유소",
+      "gasoline": 1809,
+      "diesel": 1795,
+      "lpg": null,
+      "updatedAt": "2026.11.14 11:09"
+    },
+    "11": {
+      "name": "대도주유소",
+      "gasoline": 1865,
+      "diesel": 1835,
+      "lpg": null,
+      "updatedAt": "2026.11.14 11:09"
+    },
+    "12": {
+      "name": "동아주유소",
+      "gasoline": 1819,
+      "diesel": 1809,
+      "lpg": null,
+      "updatedAt": "2026.11.14 11:09"
+    },
     "7": {
       "name": "회덕IC충전소",
       "gasoline": null,
