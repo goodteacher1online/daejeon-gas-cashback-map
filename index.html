@@ -621,6 +621,34 @@
     .status-pin-dot.status-ok { background: #10b981; }
     .status-pin-dot.status-warn { background: #eab308; }
     .status-pin-dot.status-bad { background: #ef4444; }
+    .pin-verify-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 10px;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+    .pin-verify-badge.pin-ok {
+      background: #059669;
+      color: white;
+    }
+    .pin-verify-badge.pin-bad {
+      background: #dc2626;
+      color: white;
+    }
+    .pin-verify-badge.pin-warn {
+      background: #d97706;
+      color: white;
+    }
+    .pin-verify-badge.pin-none {
+      background: #94a3b8;
+      color: white;
+      opacity: 0.85;
+    }
     /* 토스트 알림 */
     #toastMsg {
       position: fixed;
@@ -895,31 +923,31 @@
   // 🛡️ 시민 현장 검증 시스템 & Firebase Firestore 연동
   // ========================================================
   const firebaseConfig = {
-    apiKey: "", // Firebase Web API Key (입력 시 전세계 실시간 동기화)
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
+    apiKey: "", // Firebase Web API Key (웹 앱 추가 시 발급)
+    authDomain: "daejeon-gas-cashback-map.firebaseapp.com",
+    projectId: "daejeon-gas-cashback-map",
+    storageBucket: "daejeon-gas-cashback-map.appspot.com",
+    messagingSenderId: "846591624527",
     appId: ""
   };
 
   let db = null;
   let isFirebaseReady = false;
 
-  // 각 주유소별 기본 검증 데이터 (초기값 및 폴백)
+  // 각 주유소별 기본 검증 데이터 (초기값: 0건 클린 리셋)
   let verificationData = {
-    1: { oper: 14, inoper: 0, lastTime: "어제" },
-    2: { oper: 11, inoper: 1, lastTime: "3일 전" },
-    3: { oper: 16, inoper: 0, lastTime: "오늘" },
-    4: { oper: 21, inoper: 0, lastTime: "오늘" }, // 방동주유소
-    5: { oper: 9, inoper: 0, lastTime: "어제" },
-    6: { oper: 8, inoper: 0, lastTime: "2일 전" },
-    10: { oper: 17, inoper: 0, lastTime: "오늘" }, // 상서현대
-    11: { oper: 13, inoper: 0, lastTime: "오늘" }, // 대도주유소
-    12: { oper: 15, inoper: 0, lastTime: "오늘" }, // 동아주유소
-    7: { oper: 7, inoper: 0, lastTime: "3일 전" },
-    8: { oper: 6, inoper: 0, lastTime: "어제" },
-    9: { oper: 8, inoper: 0, lastTime: "2일 전" }
+    1: { oper: 0, inoper: 0, lastTime: "" },
+    2: { oper: 0, inoper: 0, lastTime: "" },
+    3: { oper: 0, inoper: 0, lastTime: "" },
+    4: { oper: 0, inoper: 0, lastTime: "" },
+    5: { oper: 0, inoper: 0, lastTime: "" },
+    6: { oper: 0, inoper: 0, lastTime: "" },
+    7: { oper: 0, inoper: 0, lastTime: "" },
+    8: { oper: 0, inoper: 0, lastTime: "" },
+    9: { oper: 0, inoper: 0, lastTime: "" },
+    10: { oper: 0, inoper: 0, lastTime: "" },
+    11: { oper: 0, inoper: 0, lastTime: "" },
+    12: { oper: 0, inoper: 0, lastTime: "" }
   };
 
   function initVerification() {
@@ -1143,13 +1171,26 @@
       if (currentFuel === 'diesel') priceClass = 'diesel-val';
       else if (currentFuel === 'lpg') priceClass = 'lpg-val';
 
-      // 마커 HTML: 주유소 이름 뒤에 가격 정보 및 시민 검증 신호등 점
+      // 지도 위 마커 핀에 즉시 표시되는 시민 검증 신호등 뱃지
+      let verifyPinBadge = '<span class="pin-verify-badge pin-none">미검증</span>';
+      if (v.total > 0) {
+        if (v.status === 'ok') {
+          verifyPinBadge = `<span class="pin-verify-badge pin-ok"><i class="fa-solid fa-check"></i> ${v.oper}</span>`;
+        } else if (v.status === 'bad') {
+          verifyPinBadge = `<span class="pin-verify-badge pin-bad"><i class="fa-solid fa-xmark"></i> ${v.inoper}</span>`;
+        } else {
+          verifyPinBadge = `<span class="pin-verify-badge pin-warn">? ${v.oper}/${v.inoper}</span>`;
+        }
+      }
+
+      // 마커 HTML: 주유소 이름 + 유가 + 시민 검증 뱃지
       const markerHtml = `
         <div class="custom-station-pin ${brandClass} ${isLpg ? 'marker-lpg' : ''} ${isBest ? 'best-price' : ''}">
           <span class="status-pin-dot status-${v.status}" title="${v.statusText}"></span>
           <i class="fa-solid fa-${isLpg ? 'fire-flame-simple' : 'gas-pump'}"></i>
           <span class="station-name">${st.name}</span>
           <span class="price-val ${priceClass}">${price ? price.toLocaleString() + '원' : '-'}</span>
+          ${verifyPinBadge}
           ${isBest ? '<span class="best-badge">최저가</span>' : ''}
           <div class="anchor-dot"></div>
         </div>
