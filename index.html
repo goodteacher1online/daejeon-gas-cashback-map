@@ -621,33 +621,142 @@
     .status-pin-dot.status-ok { background: #10b981; }
     .status-pin-dot.status-warn { background: #eab308; }
     .status-pin-dot.status-bad { background: #ef4444; }
+
+    /* 시민 검증 점수 뱃지 (핀 및 카드 공통) */
     .pin-verify-badge {
       display: inline-flex;
       align-items: center;
       gap: 3px;
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 800;
-      padding: 1px 6px;
-      border-radius: 10px;
+      padding: 2px 7px;
+      border-radius: 12px;
       line-height: 1.3;
       white-space: nowrap;
+      background: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
-    .pin-verify-badge.pin-ok {
-      background: #059669;
-      color: white;
+    .pin-verify-badge .col-ok {
+      color: #4ade80; /* 선명한 고대비 연두 */
+      font-weight: 900;
     }
-    .pin-verify-badge.pin-bad {
-      background: #dc2626;
-      color: white;
+    .pin-verify-badge .col-bad {
+      color: #f87171; /* 선명한 고대비 밝은 빨강 */
+      font-weight: 900;
     }
-    .pin-verify-badge.pin-warn {
-      background: #d97706;
-      color: white;
+    .pin-verify-badge .col-arrow {
+      color: #94a3b8;
+      font-size: 8px;
+      margin: 0 2px;
     }
     .pin-verify-badge.pin-none {
-      background: #94a3b8;
-      color: white;
-      opacity: 0.85;
+      background: #64748b;
+      color: #f8fafc;
+      font-size: 9px;
+      padding: 1px 6px;
+      opacity: 0.9;
+    }
+    .verify-score-pill {
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      margin-left: 5px;
+      font-family: monospace;
+      line-height: 1.4;
+    }
+
+    /* 🔍 신규 장소 제보 버튼 및 살펴볼 곳 칩 스타일 */
+    .btn-add-candidate {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      white-space: nowrap;
+    }
+    .btn-add-candidate:hover {
+      background: #2563eb;
+    }
+    .chip.chip-candidate {
+      border-color: #c084fc;
+      color: #7e22ce;
+      background: #faf5ff;
+    }
+    .chip.chip-candidate.active {
+      background: #7e22ce;
+      color: #ffffff;
+      border-color: #7e22ce;
+    }
+    .candidate-count-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 10px;
+      background: #e9d5ff;
+      color: #6b21a8;
+      margin-left: 2px;
+      vertical-align: middle;
+    }
+    .chip.chip-candidate.active .candidate-count-badge {
+      background: #ffffff;
+      color: #7e22ce;
+    }
+
+    /* 후보 주유소 마커 핀 스타일 */
+    .custom-candidate-pin {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #581c87;
+      color: #ffffff;
+      padding: 4px 9px;
+      border-radius: 18px;
+      box-shadow: 0 4px 10px rgba(88, 28, 135, 0.4);
+      font-size: 11px;
+      font-weight: 700;
+      border: 1.5px dashed #d8b4fe;
+      position: relative;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.15s ease;
+    }
+    .custom-candidate-pin:hover {
+      transform: scale(1.05);
+    }
+    .custom-candidate-pin.approved {
+      background: #065f46;
+      border: 1.5px solid #34d399;
+      box-shadow: 0 4px 10px rgba(6, 95, 70, 0.4);
+    }
+    .candidate-progress-bar {
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .candidate-progress-fill {
+      height: 100%;
+      background: #7e22ce;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    .candidate-progress-fill.full {
+      background: #10b981;
     }
     /* 토스트 알림 */
     #toastMsg {
@@ -975,8 +1084,11 @@
   <!-- Top Control Bar -->
   <header>
     <div class="header-card">
-      <div class="title-group">
+      <div class="title-group" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
         <h1>온통대전</h1>
+        <button class="btn-add-candidate" onclick="openCandidateModal()" title="새로운 온통대전 캐시백 주유소 제보하기">
+          <i class="fa-solid fa-plus"></i> 새 장소 제보
+        </button>
       </div>
       <!-- Fuel Type Chips: 기호 없이 글자만 -->
       <div class="filters">
@@ -984,6 +1096,9 @@
         <div class="chip" data-type="diesel" onclick="setFuel('diesel', this)">경유</div>
         <div class="chip" data-type="lpg" onclick="setFuel('lpg', this)">LPG</div>
         <div class="chip" data-type="all" onclick="setFuel('all', this)">전체</div>
+        <div class="chip chip-candidate" data-type="candidates" onclick="setFuel('candidates', this)">
+          <i class="fa-solid fa-magnifying-glass-location"></i> 살펴볼 곳 <span id="candidateCountBadge" class="candidate-count-badge">0</span>
+        </div>
       </div>
     </div>
   </header>
@@ -1245,6 +1360,17 @@
     12: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" }
   };
 
+  // 🔍 시민 발굴 '살펴볼 곳' 후보 주유소 목록 (Firestore 실시간 동기화)
+  let candidateStations = [];
+
+  function updateCandidateBadge() {
+    const badge = document.getElementById('candidateCountBadge');
+    if (!badge) return;
+    const count = candidateStations.length;
+    badge.innerText = count;
+    badge.style.display = count > 0 ? 'inline-block' : 'none';
+  }
+
   function initVerification() {
     // 🧹 과거 테스트 가짜 데이터 로컬스토리지 강제 영구 삭제
     try {
@@ -1294,6 +1420,19 @@
         }, err => {
           console.warn("Firestore listener error:", err);
         });
+
+        // 2. 🔍 시민 신규 제보 '살펴볼 곳' 실시간 리스너
+        db.collection("daejeon_gas_candidates").onSnapshot(snapshot => {
+          candidateStations = [];
+          snapshot.forEach(doc => {
+            candidateStations.push({ id: doc.id, ...doc.data() });
+          });
+          updateCandidateBadge();
+          renderMarkers();
+          renderList();
+        }, err => {
+          console.warn("Candidates listener error:", err);
+        });
       } catch (err) {
         console.warn("Firebase init fallback to local:", err);
       }
@@ -1308,12 +1447,12 @@
   function getVerificationSummary(id) {
     const d = verificationData[id] || { oper: 0, inoper: 0, lastTime: '' };
     const total = d.oper + d.inoper;
-    let status = 'warn'; // ok (운영 확인), warn (검증중), bad (미운영 의심)
-    let statusText = '시민 검증 진행중';
+    let status = 'none'; // ok (확인됨), warn (검증중), bad (불가의심), none (미검증)
+    let statusText = '시민 검증 대기';
     let ratioText = '';
 
     if (total === 0) {
-      status = 'warn';
+      status = 'none';
       statusText = '시민 검증 대기';
     } else {
       const operRatio = Math.round((d.oper / total) * 100);
@@ -1323,12 +1462,19 @@
         ratioText = `신뢰도 ${operRatio}%`;
       } else if (d.inoper >= 2 && operRatio < 50) {
         status = 'bad';
-        statusText = '캐시백 불가/제외 의심';
-        ratioText = `미운영 제보 ${d.inoper}건`;
+        statusText = '캐시백 불가 의심';
+        ratioText = `불가 ${d.inoper}건`;
       } else {
         status = 'warn';
-        statusText = '검증 의견 갈림';
-        ratioText = `성공 ${d.oper} / 실패 ${d.inoper}`;
+        // 검증 의견 갈림 대신 직관적인 "검증 중 (성공:실패)"
+        if (d.oper > 0 && d.inoper === 0) {
+          statusText = `검증 중 (${d.oper} : 0)`;
+        } else if (d.oper === 0 && d.inoper > 0) {
+          statusText = `검증 중 (0 : ${d.inoper})`;
+        } else {
+          statusText = `검증 중 (${d.oper} : ${d.inoper})`;
+        }
+        ratioText = `${d.oper} ➔ ${d.inoper}`;
       }
     }
 
@@ -1788,6 +1934,286 @@
     }[tag] || tag));
   }
 
+  // ==========================================
+  // 🔍 신규 발견 주유소 시민 등록 & 확인 투표 자동 승격 시스템
+  // ==========================================
+  let resolvedCandCoords = null;
+
+  function openCandidateModal() {
+    if (window.event) window.event.stopPropagation();
+    const modal = document.getElementById('candidateModal');
+    if (modal) modal.classList.add('show');
+    resolvedCandCoords = null;
+    const nameInput = document.getElementById('candNameInput');
+    const addrInput = document.getElementById('candAddrInput');
+    const phoneInput = document.getElementById('candPhoneInput');
+    const reasonInput = document.getElementById('candReasonInput');
+    const geoStatus = document.getElementById('candGeoStatus');
+
+    if (nameInput) nameInput.value = '';
+    if (addrInput) addrInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+    if (reasonInput) reasonInput.value = '';
+    if (geoStatus) geoStatus.innerHTML = '주소 입력 후 [좌표 찾기]를 누르거나 바로 등록하시면 자동 검색됩니다.';
+  }
+
+  function closeCandidateModal(e) {
+    if (e && e.target && e.target.id !== 'candidateModal' && !e.target.classList.contains('loc-modal-close') && !e.target.classList.contains('loc-btn-secondary')) {
+      return;
+    }
+    const modal = document.getElementById('candidateModal');
+    if (modal) modal.classList.remove('show');
+    resolvedCandCoords = null;
+  }
+
+  async function searchCandidateAddress() {
+    const addr = (document.getElementById('candAddrInput').value || '').trim();
+    const geoStatus = document.getElementById('candGeoStatus');
+    if (!addr) {
+      alert("주소를 먼저 입력해주세요.");
+      return null;
+    }
+    geoStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 위치 좌표 검색중...';
+    try {
+      const q = addr.startsWith('대전') ? addr : '대전 ' + addr;
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`, {
+        headers: { 'Accept-Language': 'ko' }
+      });
+      const data = await res.json();
+      if (data && data.length > 0) {
+        resolvedCandCoords = {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon)
+        };
+        geoStatus.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="fa-solid fa-check"></i> 좌표 확인됨 (${resolvedCandCoords.lat.toFixed(5)}, ${resolvedCandCoords.lng.toFixed(5)})</span>`;
+        return resolvedCandCoords;
+      } else {
+        resolvedCandCoords = { lat: 36.3504, lng: 127.3845 };
+        geoStatus.innerHTML = '<span style="color:#d97706;"><i class="fa-solid fa-triangle-exclamation"></i> 정확한 주소 검색 실패 (대전 중심 좌표로 임시 배정)</span>';
+        return resolvedCandCoords;
+      }
+    } catch (e) {
+      resolvedCandCoords = { lat: 36.3504, lng: 127.3845 };
+      geoStatus.innerHTML = '<span style="color:#64748b;">(네트워크 연결 실패, 기본 좌표로 임시 등록됩니다)</span>';
+      return resolvedCandCoords;
+    }
+  }
+
+  async function submitCandidateStation() {
+    const name = (document.getElementById('candNameInput').value || '').trim();
+    const type = document.getElementById('candTypeSelect').value;
+    const brand = document.getElementById('candBrandSelect').value;
+    const addr = (document.getElementById('candAddrInput').value || '').trim();
+    const phone = (document.getElementById('candPhoneInput').value || '').trim();
+    const reason = (document.getElementById('candReasonInput').value || '').trim();
+
+    if (!name) {
+      alert("주유소 상호명을 입력해주세요.");
+      return;
+    }
+    if (!addr) {
+      alert("주소를 입력해주세요.");
+      return;
+    }
+
+    const btn = document.getElementById('candSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 등록 처리중...';
+
+    let coords = resolvedCandCoords;
+    if (!coords) {
+      coords = await searchCandidateAddress();
+    }
+
+    const candData = {
+      name: name,
+      addr: addr,
+      brand: brand,
+      type: type,
+      lat: coords.lat,
+      lng: coords.lng,
+      phone: phone || '',
+      reason: reason || '시민 신규 발견 제보',
+      votesYes: 1, // 제보자 본인의 기본 1표
+      votesNo: 0,
+      status: 'candidate', // candidate -> 3표 달성 시 approved
+      createdAt: isFirebaseReady ? firebase.firestore.FieldValue.serverTimestamp() : new Date(),
+      updatedAt: isFirebaseReady ? firebase.firestore.FieldValue.serverTimestamp() : new Date()
+    };
+
+    if (isFirebaseReady && db) {
+      db.collection("daejeon_gas_candidates").add(candData)
+        .then((docRef) => {
+          const today = new Date().toISOString().slice(0, 10);
+          localStorage.setItem(`cand_vote_${docRef.id}_${today}`, 'yes');
+
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-plus"></i> 살펴볼 곳 등록';
+          closeCandidateModal();
+
+          const candChip = document.querySelector('.chip[data-type="candidates"]');
+          if (candChip) setFuel('candidates', candChip);
+
+          showToast("🎉 새 주유소가 '살펴볼 곳'으로 등록되었습니다! 다른 시민 2명의 확인 투표가 더 모이면 자동으로 정식 등록됩니다.");
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-plus"></i> 살펴볼 곳 등록';
+          showToast("등록 실패: " + err.message);
+        });
+    } else {
+      const localId = 'cand_' + Date.now();
+      candidateStations.push({ id: localId, ...candData });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-plus"></i> 살펴볼 곳 등록';
+      closeCandidateModal();
+      updateCandidateBadge();
+      const candChip = document.querySelector('.chip[data-type="candidates"]');
+      if (candChip) setFuel('candidates', candChip);
+      showToast("🎉 새 주유소가 '살펴볼 곳'으로 등록되었습니다! (로컬 모드)");
+    }
+  }
+
+  function getMyCandVote(candId) {
+    const today = new Date().toISOString().slice(0, 10);
+    return localStorage.getItem(`cand_vote_${candId}_${today}`) || null;
+  }
+
+  function voteCandidate(candId, type) {
+    if (window.event) window.event.stopPropagation();
+    const today = new Date().toISOString().slice(0, 10);
+    const voteKey = `cand_vote_${candId}_${today}`;
+    const currentVote = localStorage.getItem(voteKey);
+
+    const cand = candidateStations.find(c => c.id === candId);
+    if (!cand) return;
+
+    let newYes = cand.votesYes || 0;
+    let newNo = cand.votesNo || 0;
+
+    // 1. 이미 동일한 버튼 클릭 시 취소
+    if (currentVote === type) {
+      if (type === 'yes' && newYes > 0) newYes--;
+      if (type === 'no' && newNo > 0) newNo--;
+
+      if (isFirebaseReady && db) {
+        const dec = firebase.firestore.FieldValue.increment(-1);
+        const updateData = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+        if (type === 'yes') updateData.votesYes = dec;
+        else updateData.votesNo = dec;
+
+        db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
+          .then(() => {
+            localStorage.removeItem(voteKey);
+            showToast("↩️ 확인 투표가 취소되었습니다.");
+          })
+          .catch(err => showToast("오류: " + err.message));
+      } else {
+        cand.votesYes = newYes;
+        cand.votesNo = newNo;
+        localStorage.removeItem(voteKey);
+        renderMarkers();
+        renderList();
+        showToast("↩️ 확인 투표가 취소되었습니다.");
+      }
+      return;
+    }
+
+    // 2. 다른 버튼으로 전환
+    if (currentVote && currentVote !== type) {
+      if (type === 'yes') {
+        newYes++;
+        if (newNo > 0) newNo--;
+      } else {
+        newNo++;
+        if (newYes > 0) newYes--;
+      }
+
+      const willApprove = (newYes >= 3 && (newYes / (newYes + newNo)) >= 0.75);
+
+      if (isFirebaseReady && db) {
+        const inc = firebase.firestore.FieldValue.increment(1);
+        const dec = firebase.firestore.FieldValue.increment(-1);
+        const updateData = {
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (type === 'yes') {
+          updateData.votesYes = inc;
+          updateData.votesNo = dec;
+        } else {
+          updateData.votesNo = inc;
+          updateData.votesYes = dec;
+        }
+        if (willApprove) {
+          updateData.status = 'approved';
+        }
+
+        db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
+          .then(() => {
+            localStorage.setItem(voteKey, type);
+            if (willApprove) {
+              showToast("🎉 축하합니다! 시민 3인 검증 완료로 정식 가맹점으로 자동 등록되었습니다!");
+            } else {
+              showToast(type === 'yes' ? "🔄 '가맹점 맞음'으로 투표가 변경되었습니다!" : "🔄 '비대상/아님'으로 투표가 변경되었습니다!");
+            }
+          })
+          .catch(err => showToast("오류: " + err.message));
+      } else {
+        cand.votesYes = newYes;
+        cand.votesNo = newNo;
+        if (willApprove) cand.status = 'approved';
+        localStorage.setItem(voteKey, type);
+        renderMarkers();
+        renderList();
+        if (willApprove) {
+          showToast("🎉 축하합니다! 시민 3인 검증 완료로 정식 가맹점으로 자동 등록되었습니다!");
+        } else {
+          showToast(type === 'yes' ? "🔄 '가맹점 맞음'으로 투표가 변경되었습니다!" : "🔄 '비대상/아님'으로 투표가 변경되었습니다!");
+        }
+      }
+      return;
+    }
+
+    // 3. 신규 투표
+    if (type === 'yes') newYes++;
+    else newNo++;
+
+    const willApprove = (newYes >= 3 && (newYes / (newYes + newNo)) >= 0.75);
+
+    if (isFirebaseReady && db) {
+      const inc = firebase.firestore.FieldValue.increment(1);
+      const updateData = {
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (type === 'yes') updateData.votesYes = inc;
+      else updateData.votesNo = inc;
+      if (willApprove) updateData.status = 'approved';
+
+      db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
+        .then(() => {
+          localStorage.setItem(voteKey, type);
+          if (willApprove) {
+            showToast("🎉 축하합니다! 시민 3인 확인 완료! 정식 가맹점으로 자동 등록되었습니다!");
+          } else {
+            showToast(type === 'yes' ? `👍 가맹점 확인 투표 완료! (정식 등록까지 ${Math.max(0, 3 - newYes)}표 남음)` : "👎 비대상 의견이 접수되었습니다.");
+          }
+        })
+        .catch(err => showToast("투표 오류: " + err.message));
+    } else {
+      cand.votesYes = newYes;
+      cand.votesNo = newNo;
+      if (willApprove) cand.status = 'approved';
+      localStorage.setItem(voteKey, type);
+      renderMarkers();
+      renderList();
+      if (willApprove) {
+        showToast("🎉 축하합니다! 시민 3인 확인 완료! 정식 가맹점으로 자동 등록되었습니다!");
+      } else {
+        showToast(type === 'yes' ? `👍 가맹점 확인 투표 완료! (정식 등록까지 ${Math.max(0, 3 - newYes)}표 남음)` : "👎 비대상 의견이 접수되었습니다.");
+      }
+    }
+  }
+
   let map = null;
   let markers = [];
   let currentFuel = 'gasoline'; // 기본값: 휘발유
@@ -1813,7 +2239,7 @@
   function setFuel(fuel, el) {
     currentFuel = fuel;
     document.querySelectorAll('.filters .chip').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
+    if (el) el.classList.add('active');
 
     const filtered = getFilteredStations();
 
@@ -1821,6 +2247,7 @@
     if (fuel === 'diesel') label = '경유';
     else if (fuel === 'lpg') label = 'LPG 충전소';
     else if (fuel === 'all') label = '전체';
+    else if (fuel === 'candidates') label = '🔍 살펴볼 곳 (시민 제보)';
 
     document.getElementById('listTitle').innerHTML = `<span>${label} (${filtered.length}곳)</span>`;
 
@@ -1837,16 +2264,124 @@
   }
 
   function getFilteredStations() {
-    if (currentFuel === 'gasoline') return STATIONS.filter(s => s.fuel.gasoline !== null);
-    if (currentFuel === 'diesel') return STATIONS.filter(s => s.fuel.diesel !== null);
-    if (currentFuel === 'lpg') return STATIONS.filter(s => s.fuel.lpg !== null);
-    return STATIONS;
+    if (currentFuel === 'candidates') {
+      return candidateStations;
+    }
+
+    // 시민 3인 검증을 통과한 승격 가맹점은 일반 유종 목록에도 자동 합류
+    const approvedCandidates = candidateStations.filter(c => c.status === 'approved').map(c => ({
+      id: c.id,
+      name: c.name,
+      brand: c.brand,
+      brandShort: c.brand ? c.brand.slice(0, 2) : '시민',
+      brandColor: '#059669',
+      lawName: c.name + ' (시민검증 정식등록)',
+      type: c.type || 'oil',
+      addr: c.addr,
+      phone: c.phone || '',
+      placeUrl: `https://map.kakao.com/link/search/${encodeURIComponent(c.name)}`,
+      fuel: {
+        gasoline: c.type === 'lpg' ? null : 0,
+        diesel: c.type === 'lpg' ? null : 0,
+        lpg: c.type === 'lpg' ? 0 : null
+      },
+      lat: c.lat,
+      lng: c.lng,
+      isCandidateApproved: true,
+      votesYes: c.votesYes || 0
+    }));
+
+    const allBase = [...STATIONS, ...approvedCandidates];
+    if (currentFuel === 'gasoline') return allBase.filter(s => s.fuel.gasoline !== null);
+    if (currentFuel === 'diesel') return allBase.filter(s => s.fuel.diesel !== null);
+    if (currentFuel === 'lpg') return allBase.filter(s => s.fuel.lpg !== null);
+    return allBase;
   }
 
   function renderMarkers() {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
 
+    // 1. 🔍 살펴볼 곳 탭일 때: 후보 주유소 마커 렌더링
+    if (currentFuel === 'candidates') {
+      if (candidateStations.length === 0) return;
+      candidateStations.forEach(c => {
+        const isApproved = c.status === 'approved';
+        const myCandVote = getMyCandVote(c.id);
+
+        const markerHtml = `
+          <div class="custom-candidate-pin ${isApproved ? 'approved' : ''}">
+            <i class="fa-solid fa-${isApproved ? 'certificate' : 'magnifying-glass-location'}"></i>
+            <span>${c.name}</span>
+            <span class="pin-verify-badge pin-score">
+              <b class="col-ok">${c.votesYes || 0}</b>
+              <span class="col-arrow">➔</span>
+              <b class="col-bad">${c.votesNo || 0}</b>
+            </span>
+          </div>
+        `;
+
+        const customIcon = L.divIcon({
+          className: 'marker-wrap',
+          html: markerHtml,
+          iconSize: null,
+          iconAnchor: [0, 0]
+        });
+
+        const m = L.marker([c.lat, c.lng], { icon: customIcon }).addTo(map);
+
+        const popupHtml = `
+          <div style="min-width:240px; font-family:'Pretendard', sans-serif;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+              <h3 style="font-size:14px; font-weight:800; color:#0f172a; margin:0;">${c.name}</h3>
+              <span style="font-size:10px; background:${isApproved ? '#059669':'#7e22ce'}; color:white; padding:2px 6px; border-radius:4px; font-weight:700;">
+                ${isApproved ? '시민검증 완료' : '살펴볼 곳'}
+              </span>
+            </div>
+            <p style="font-size:11px; color:#64748b; margin-bottom:6px;">${c.addr}</p>
+            <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:8px; padding:6px 10px; font-size:12px; color:#6b21a8; margin-bottom:6px;">
+              <i class="fa-solid fa-comment-dots"></i> 제보 사유: <b>${escapeHtml(c.reason || '시민 제보')}</b>
+            </div>
+            
+            <div style="margin: 8px 0; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px 10px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:3px;">
+                <span>${isApproved ? '🎉 정식 가맹점 자동 등록됨' : '정식 등록 검증 투표'}</span>
+                <span><b style="color:#059669;">${c.votesYes || 0}</b> <span style="color:#94a3b8;">➔</span> <b style="color:#dc2626;">${c.votesNo || 0}</b></span>
+              </div>
+              <div class="candidate-progress-bar">
+                <div class="candidate-progress-fill ${isApproved ? 'full' : ''}" style="width: ${Math.min(100, Math.round(((c.votesYes || 0) / 3) * 100))}%;"></div>
+              </div>
+              <div style="font-size:10px; color:#64748b; margin-top:3px; text-align:right;">
+                ${isApproved ? '검증 통과 (자동 등록됨)' : `3표 중 ${c.votesYes || 0}표 확인 (앞으로 ${Math.max(0, 3 - (c.votesYes || 0))}표)`}
+              </div>
+            </div>
+
+            <div class="verify-btn-group" style="margin-bottom:8px;">
+              <button class="btn-verify btn-ok ${myCandVote === 'yes' ? 'voted' : ''}" onclick="voteCandidate('${c.id}', 'yes')" title="온통대전 캐시백 가맹점 맞음">
+                <i class="fa-solid fa-thumbs-up"></i> 맞아요 <span class="vote-num">${c.votesYes || 0}</span>
+              </button>
+              <button class="btn-verify btn-bad ${myCandVote === 'no' ? 'voted' : ''}" onclick="voteCandidate('${c.id}', 'no')" title="캐시백 비대상 주유소임">
+                <i class="fa-solid fa-thumbs-down"></i> 아니에요 <span class="vote-num">${c.votesNo || 0}</span>
+              </button>
+            </div>
+
+            <div style="display:flex; gap:6px;">
+              <a href="https://map.kakao.com/link/search/${encodeURIComponent(c.name)}" target="_blank" style="flex:1; text-align:center; background:#2563eb; color:white; border-radius:6px; padding:6px; font-size:11px; font-weight:700; text-decoration:none;">
+                카카오맵 확인
+              </a>
+              <a href="https://map.kakao.com/link/to/${encodeURIComponent(c.name)},${c.lat},${c.lng}" target="_blank" style="flex:1; text-align:center; background:#0f172a; color:white; border-radius:6px; padding:6px; font-size:11px; font-weight:700; text-decoration:none;">
+                길찾기
+              </a>
+            </div>
+          </div>
+        `;
+        m.bindPopup(popupHtml);
+        markers.push(m);
+      });
+      return;
+    }
+
+    // 2. 일반 유종 탭일 때: 기존 주유소 + 승격된 가맹점 렌더링
     const list = getFilteredStations();
 
     // 현재 선택된 유종 기준 최저가 계산
@@ -1873,16 +2408,10 @@
       if (currentFuel === 'diesel') priceClass = 'diesel-val';
       else if (currentFuel === 'lpg') priceClass = 'lpg-val';
 
-      // 지도 위 마커 핀에 즉시 표시되는 시민 검증 신호등 뱃지
+      // 지도 위 마커 핀에 즉시 표시되는 시민 검증 점수 뱃지 (선명한 색상 & 화살표)
       let verifyPinBadge = '<span class="pin-verify-badge pin-none">미검증</span>';
       if (v.total > 0) {
-        if (v.status === 'ok') {
-          verifyPinBadge = `<span class="pin-verify-badge pin-ok"><i class="fa-solid fa-check"></i> ${v.oper}</span>`;
-        } else if (v.status === 'bad') {
-          verifyPinBadge = `<span class="pin-verify-badge pin-bad"><i class="fa-solid fa-xmark"></i> ${v.inoper}</span>`;
-        } else {
-          verifyPinBadge = `<span class="pin-verify-badge pin-warn">? ${v.oper}/${v.inoper}</span>`;
-        }
+        verifyPinBadge = `<span class="pin-verify-badge pin-score"><b class="col-ok">${v.oper}</b> <span class="col-arrow">➔</span> <b class="col-bad">${v.inoper}</b></span>`;
       }
 
       // 위치 오류 제보가 있을 때 핀에 주의 표시
@@ -1931,7 +2460,12 @@
               <div class="verify-badge status-${v.status}">
                 <span class="status-dot"></span>
                 <span>${v.statusText}</span>
-                ${v.ratioText ? `<span style="opacity:0.8; font-weight:800; font-size:10px;">(${v.ratioText})</span>` : ''}
+                ${v.total > 0 ? `
+                  <span class="verify-score-pill">
+                    <b style="color:#16a34a;">${v.oper}</b>
+                    <span style="color:#94a3b8; font-size:9px; margin:0 3px;">➔</span>
+                    <b style="color:#dc2626;">${v.inoper}</b>
+                  </span>` : ''}
               </div>
               <span class="verify-meta">${v.lastTime ? '최근: ' + v.lastTime : '첫 제보 대기'}</span>
             </div>
@@ -1989,6 +2523,107 @@
     const listEl = document.getElementById('stationList');
     listEl.innerHTML = '';
 
+    // 1. 🔍 살펴볼 곳 탭일 때 후보 주유소 목록 렌더링
+    if (currentFuel === 'candidates') {
+      if (candidateStations.length === 0) {
+        listEl.innerHTML = `
+          <div style="text-align:center; padding:36px 16px; color:#64748b;">
+            <i class="fa-solid fa-magnifying-glass-location" style="font-size:36px; color:#c084fc; margin-bottom:12px;"></i>
+            <div style="font-size:15px; font-weight:800; color:#1e293b; margin-bottom:6px;">등록된 '살펴볼 곳'이 아직 없습니다.</div>
+            <div style="font-size:12px; color:#64748b; margin-bottom:16px;">새로 발견하신 온통대전 캐시백 주유소가 있다면 등록해주세요!</div>
+            <button class="btn-add-candidate" onclick="openCandidateModal()" style="margin:0 auto; padding:8px 16px; font-size:12px;">
+              <i class="fa-solid fa-plus"></i> 새 장소 제보하기
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      candidateStations.forEach(c => {
+        const isApproved = c.status === 'approved';
+        const myCandVote = getMyCandVote(c.id);
+        const card = document.createElement('div');
+        card.className = 'station-card';
+        card.id = `cand-card-${c.id}`;
+        card.onclick = () => {
+          map.setView([c.lat, c.lng], 15);
+          markers.forEach(m => {
+            const pos = m.getLatLng();
+            if (Math.abs(pos.lat - c.lat) < 0.0001 && Math.abs(pos.lng - c.lng) < 0.0001) {
+              m.openPopup();
+            }
+          });
+        };
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-title-group">
+              <div class="card-main-title">
+                ${c.name}
+                <span class="brand-pill" style="background:#7e22ce;">${c.brand || '기타'}</span>
+                ${isApproved ? '<span class="best-badge" style="background:#059669; font-size:10px; padding:2px 6px;">시민검증 완료</span>' : '<span style="font-size:10px; background:#faf5ff; color:#7e22ce; border:1px solid #d8b4fe; padding:2px 6px; border-radius:4px; font-weight:700;">미정 살펴볼 곳</span>'}
+              </div>
+              <div class="card-sub-info">
+                <span>${c.brand}</span>
+                <span>&bull;</span>
+                <span>${c.type === 'lpg' ? 'LPG 충전소' : '일반 주유소'}</span>
+              </div>
+            </div>
+            <div class="card-price-badge" style="background:#faf5ff; border:1px solid #e9d5ff;">
+              <span style="font-size:10px; color:#7e22ce; font-weight:700;">확인 투표</span>
+              <span style="color:#059669; font-weight:800;">${c.votesYes || 0}</span>
+              <span style="font-size:9px; color:#94a3b8;">/ 3</span>
+            </div>
+          </div>
+
+          <div class="card-addr"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${c.addr}</div>
+
+          <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:6px; padding:6px 10px; font-size:11px; color:#6b21a8; margin:6px 0;">
+            <i class="fa-solid fa-comment-dots"></i> 제보 사유: <b>${escapeHtml(c.reason || '온통대전 캐시백 가맹점 제보')}</b>
+          </div>
+
+          <!-- 시민 승격 투표 진행도 -->
+          <div style="margin: 8px 0; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px 10px;" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:4px;">
+              <span>${isApproved ? '🎉 시민 3인 검증 완료 (정식 가맹점 자동 등록)' : '정식 등록을 위한 현장 확인'}</span>
+              <span>
+                <b style="color:#059669;">${c.votesYes || 0}</b> <span style="color:#94a3b8;">➔</span> <b style="color:#dc2626;">${c.votesNo || 0}</b>
+              </span>
+            </div>
+            <div class="candidate-progress-bar">
+              <div class="candidate-progress-fill ${isApproved ? 'full' : ''}" style="width: ${Math.min(100, Math.round(((c.votesYes || 0) / 3) * 100))}%;"></div>
+            </div>
+            <div style="font-size:10px; color:#64748b; margin-top:4px; display:flex; justify-content:space-between;">
+              <span>3표 이상 확인 시 자동 정식 승격</span>
+              <span>${isApproved ? '승격 완료' : `앞으로 ${Math.max(0, 3 - (c.votesYes || 0))}표 남음`}</span>
+            </div>
+
+            <div class="verify-btn-group" style="margin-top:8px;">
+              <button class="btn-verify btn-ok ${myCandVote === 'yes' ? 'voted' : ''}" onclick="voteCandidate('${c.id}', 'yes')" title="온통대전 캐시백 가맹점 맞음">
+                <i class="fa-solid fa-thumbs-up"></i> 가맹점 맞아요 <span class="vote-num">${c.votesYes || 0}</span>
+              </button>
+              <button class="btn-verify btn-bad ${myCandVote === 'no' ? 'voted' : ''}" onclick="voteCandidate('${c.id}', 'no')" title="캐시백 비대상 주유소임">
+                <i class="fa-solid fa-thumbs-down"></i> 아니에요/제외 <span class="vote-num">${c.votesNo || 0}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-actions-row">
+            <a href="https://map.kakao.com/link/search/${encodeURIComponent(c.name)}" target="_blank" class="btn-realtime-price" style="background:#7e22ce;" onclick="event.stopPropagation()">
+              <i class="fa-solid fa-magnifying-glass"></i> 카카오맵 검색
+            </a>
+            <a href="https://map.kakao.com/link/to/${encodeURIComponent(c.name)},${c.lat},${c.lng}" target="_blank" class="btn-sub-action" onclick="event.stopPropagation()">
+              <i class="fa-solid fa-location-arrow"></i> 길찾기
+            </a>
+            ${c.phone ? `<a href="tel:${c.phone}" class="btn-sub-action" onclick="event.stopPropagation()"><i class="fa-solid fa-phone"></i> 전화</a>` : ''}
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+      return;
+    }
+
+    // 2. 일반 유종 탭일 때 목록 렌더링
     let filtered = [...getFilteredStations()];
 
     // Distance calculation if myLocation exists
@@ -2054,7 +2689,12 @@
             <div class="verify-badge status-${v.status}">
               <span class="status-dot"></span>
               <span>${v.statusText}</span>
-              ${v.ratioText ? `<span style="opacity:0.8; font-weight:800; font-size:10px;">(${v.ratioText})</span>` : ''}
+              ${v.total > 0 ? `
+                <span class="verify-score-pill">
+                  <b style="color:#16a34a;">${v.oper}</b>
+                  <span style="color:#94a3b8; font-size:9px; margin:0 3px;">➔</span>
+                  <b style="color:#dc2626;">${v.inoper}</b>
+                </span>` : ''}
             </div>
             <span class="verify-meta">${v.lastTime ? '최근 제보: ' + v.lastTime : '첫 제보 대기'}</span>
           </div>
@@ -2268,6 +2908,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeLocationReportModal();
+        closeCandidateModal();
       }
     });
   };
@@ -2319,6 +2960,86 @@
       <button class="loc-btn-secondary" onclick="closeLocationReportModal()">닫기</button>
       <button id="locSubmitBtn" class="loc-btn-primary" onclick="submitLocationReport()">
         <i class="fa-solid fa-paper-plane"></i> 제보 등록
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 🔍 신규 주유소 제보 (살펴볼 곳 등록) 모달 -->
+<div id="candidateModal" class="loc-modal-overlay" onclick="closeCandidateModal(event)">
+  <div class="loc-modal" onclick="event.stopPropagation()">
+    <div class="loc-modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-magnifying-glass-plus" style="color:#7e22ce; font-size:16px;"></i>
+        <h3 style="margin:0; font-size:15px; font-weight:800; color:#0f172a;">새 주유소 제보 (살펴볼 곳 등록)</h3>
+      </div>
+      <button class="loc-modal-close" onclick="closeCandidateModal()">&times;</button>
+    </div>
+    
+    <div class="loc-modal-body">
+      <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#6b21a8; line-height:1.4;">
+        <i class="fa-solid fa-circle-info"></i> 온통대전(대전사랑카드) 캐시백이 적용되는 새로운 주유소인가요?<br>
+        등록 시 <b>'미정 살펴볼 곳'</b>으로 등록되며, <b>시민 3명의 확인 투표</b>를 받으면 <b>정식 가맹점으로 자동 등록</b>됩니다!
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+          주유소 상호명 <span style="color:#ef4444;">*</span>
+        </label>
+        <input type="text" id="candNameInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 대덕테크노주유소">
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="flex:1;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">유종 구분</label>
+          <select id="candTypeSelect" class="loc-report-textarea" style="height:38px; padding:6px 10px;">
+            <option value="oil">일반 주유소 (휘발유/경유)</option>
+            <option value="lpg">LPG 충전소</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">정유사 브랜드</label>
+          <select id="candBrandSelect" class="loc-report-textarea" style="height:38px; padding:6px 10px;">
+            <option value="HD현대오일뱅크">HD현대오일뱅크</option>
+            <option value="SK에너지">SK에너지</option>
+            <option value="GS칼텍스">GS칼텍스</option>
+            <option value="S-OIL">S-OIL</option>
+            <option value="알뜰주유소">알뜰주유소</option>
+            <option value="자가상표/기타">자가상표/기타</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+          도로명 주소 <span style="color:#ef4444;">*</span>
+        </label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="candAddrInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 대전 유성구 대덕대로 1234">
+          <button type="button" class="loc-btn-secondary" onclick="searchCandidateAddress()" style="white-space:nowrap; padding:0 12px; font-size:11px;">
+            <i class="fa-solid fa-location-crosshairs"></i> 좌표 찾기
+          </button>
+        </div>
+        <div id="candGeoStatus" style="font-size:11px; color:#64748b; margin-top:4px;">주소를 입력 후 [좌표 찾기]를 누르거나 바로 등록하시면 자동 검색됩니다.</div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">전화번호 (선택)</label>
+        <input type="text" id="candPhoneInput" class="loc-report-textarea" style="height:38px; resize:none;" placeholder="예: 042-123-4567">
+      </div>
+
+      <div>
+        <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+          제보 사유 / 결제 후기 <span style="color:#ef4444;">*</span>
+        </label>
+        <textarea id="candReasonInput" rows="2" class="loc-report-textarea" placeholder="예: 2026년 11월에 온통대전 카드로 주유 후 10% 캐시백 정상 적립된 것 확인했습니다."></textarea>
+      </div>
+    </div>
+
+    <div class="loc-modal-footer">
+      <button class="loc-btn-secondary" onclick="closeCandidateModal()">닫기</button>
+      <button id="candSubmitBtn" class="loc-btn-primary" style="background:#7e22ce;" onclick="submitCandidateStation()">
+        <i class="fa-solid fa-plus"></i> 살펴볼 곳 등록
       </button>
     </div>
   </div>
