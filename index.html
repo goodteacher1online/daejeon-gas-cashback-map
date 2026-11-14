@@ -645,9 +645,10 @@
       color: #f87171; /* 선명한 고대비 밝은 빨강 */
       font-weight: 900;
     }
-    .pin-verify-badge .col-arrow {
+    .pin-verify-badge .col-colon {
       color: #94a3b8;
-      font-size: 8px;
+      font-size: 10px;
+      font-weight: 700;
       margin: 0 2px;
     }
     .pin-verify-badge.pin-none {
@@ -1474,7 +1475,7 @@
         } else {
           statusText = `검증 중 (${d.oper} : ${d.inoper})`;
         }
-        ratioText = `${d.oper} ➔ ${d.inoper}`;
+        ratioText = `${d.oper} : ${d.inoper}`;
       }
     }
 
@@ -2315,7 +2316,7 @@
             <span>${c.name}</span>
             <span class="pin-verify-badge pin-score">
               <b class="col-ok">${c.votesYes || 0}</b>
-              <span class="col-arrow">➔</span>
+              <span class="col-colon">:</span>
               <b class="col-bad">${c.votesNo || 0}</b>
             </span>
           </div>
@@ -2346,7 +2347,7 @@
             <div style="margin: 8px 0; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px 10px;">
               <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:3px;">
                 <span>${isApproved ? '🎉 정식 가맹점 자동 등록됨' : '정식 등록 검증 투표'}</span>
-                <span><b style="color:#059669;">${c.votesYes || 0}</b> <span style="color:#94a3b8;">➔</span> <b style="color:#dc2626;">${c.votesNo || 0}</b></span>
+                <span><b style="color:#059669;">${c.votesYes || 0}</b> <span style="color:#94a3b8; font-weight:700;">:</span> <b style="color:#dc2626;">${c.votesNo || 0}</b></span>
               </div>
               <div class="candidate-progress-bar">
                 <div class="candidate-progress-fill ${isApproved ? 'full' : ''}" style="width: ${Math.min(100, Math.round(((c.votesYes || 0) / 3) * 100))}%;"></div>
@@ -2408,10 +2409,10 @@
       if (currentFuel === 'diesel') priceClass = 'diesel-val';
       else if (currentFuel === 'lpg') priceClass = 'lpg-val';
 
-      // 지도 위 마커 핀에 즉시 표시되는 시민 검증 점수 뱃지 (선명한 색상 & 화살표)
+      // 지도 위 마커 핀에 즉시 표시되는 시민 검증 점수 뱃지 (선명한 색상 & 콜론 기호)
       let verifyPinBadge = '<span class="pin-verify-badge pin-none">미검증</span>';
       if (v.total > 0) {
-        verifyPinBadge = `<span class="pin-verify-badge pin-score"><b class="col-ok">${v.oper}</b> <span class="col-arrow">➔</span> <b class="col-bad">${v.inoper}</b></span>`;
+        verifyPinBadge = `<span class="pin-verify-badge pin-score"><b class="col-ok">${v.oper}</b> <span class="col-colon">:</span> <b class="col-bad">${v.inoper}</b></span>`;
       }
 
       // 위치 오류 제보가 있을 때 핀에 주의 표시
@@ -2463,7 +2464,7 @@
                 ${v.total > 0 ? `
                   <span class="verify-score-pill">
                     <b style="color:#16a34a;">${v.oper}</b>
-                    <span style="color:#94a3b8; font-size:9px; margin:0 3px;">➔</span>
+                    <span style="color:#94a3b8; font-size:10px; font-weight:700; margin:0 3px;">:</span>
                     <b style="color:#dc2626;">${v.inoper}</b>
                   </span>` : ''}
               </div>
@@ -2587,7 +2588,7 @@
             <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:4px;">
               <span>${isApproved ? '🎉 시민 3인 검증 완료 (정식 가맹점 자동 등록)' : '정식 등록을 위한 현장 확인'}</span>
               <span>
-                <b style="color:#059669;">${c.votesYes || 0}</b> <span style="color:#94a3b8;">➔</span> <b style="color:#dc2626;">${c.votesNo || 0}</b>
+                <b style="color:#059669;">${c.votesYes || 0}</b> <span style="color:#94a3b8; font-weight:700;">:</span> <b style="color:#dc2626;">${c.votesNo || 0}</b>
               </span>
             </div>
             <div class="candidate-progress-bar">
@@ -2692,7 +2693,7 @@
               ${v.total > 0 ? `
                 <span class="verify-score-pill">
                   <b style="color:#16a34a;">${v.oper}</b>
-                  <span style="color:#94a3b8; font-size:9px; margin:0 3px;">➔</span>
+                  <span style="color:#94a3b8; font-size:10px; font-weight:700; margin:0 3px;">:</span>
                   <b style="color:#dc2626;">${v.inoper}</b>
                 </span>` : ''}
             </div>
