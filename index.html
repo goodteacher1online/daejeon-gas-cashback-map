@@ -917,6 +917,42 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
+    /* 📍 검증 섹션 반응형 그리드 래퍼 (PC/태블릿 2열 나란히 배치, 모바일 상하 배치) */
+    .verify-grid-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+      width: 100%;
+    }
+    .verify-grid-wrap .verify-box {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .verify-grid-wrap .loc-verify-box {
+      margin-top: 0;
+      margin-bottom: 0;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    @media (min-width: 768px) {
+      .verify-grid-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        align-items: stretch;
+      }
+      .verify-grid-wrap .verify-box,
+      .verify-grid-wrap .loc-verify-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+    }
+
     /* 위치 수정 제보 모달 */
     .loc-modal-overlay {
       position: fixed;
@@ -1467,14 +1503,7 @@
         ratioText = `불가 ${d.inoper}건`;
       } else {
         status = 'warn';
-        // 검증 의견 갈림 대신 직관적인 "검증 중 (성공:실패)"
-        if (d.oper > 0 && d.inoper === 0) {
-          statusText = `검증 중 (${d.oper} : 0)`;
-        } else if (d.oper === 0 && d.inoper > 0) {
-          statusText = `검증 중 (0 : ${d.inoper})`;
-        } else {
-          statusText = `검증 중 (${d.oper} : ${d.inoper})`;
-        }
+        statusText = '검증 중';
         ratioText = `${d.oper} : ${d.inoper}`;
       }
     }
@@ -2684,49 +2713,52 @@
 
         <div class="card-addr"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${st.addr}</div>
 
-        <!-- 시민 실시간 캐시백 현장 검증 박스 -->
-        <div class="verify-box" onclick="event.stopPropagation()">
-          <div class="verify-status-bar">
-            <div class="verify-badge status-${v.status}">
-              <span class="status-dot"></span>
-              <span>${v.statusText}</span>
-              ${v.total > 0 ? `
-                <span class="verify-score-pill">
-                  <b style="color:#16a34a;">${v.oper}</b>
-                  <span style="color:#94a3b8; font-size:10px; font-weight:700; margin:0 3px;">:</span>
-                  <b style="color:#dc2626;">${v.inoper}</b>
-                </span>` : ''}
+        <!-- 검증 영역 (PC 2열 나란히, 모바일 상하 배치) -->
+        <div class="verify-grid-wrap">
+          <!-- 시민 실시간 캐시백 현장 검증 박스 -->
+          <div class="verify-box" onclick="event.stopPropagation()">
+            <div class="verify-status-bar">
+              <div class="verify-badge status-${v.status}">
+                <span class="status-dot"></span>
+                <span>${v.statusText}</span>
+                ${v.total > 0 ? `
+                  <span class="verify-score-pill">
+                    <b style="color:#16a34a;">${v.oper}</b>
+                    <span style="color:#94a3b8; font-size:10px; font-weight:700; margin:0 3px;">:</span>
+                    <b style="color:#dc2626;">${v.inoper}</b>
+                  </span>` : ''}
+              </div>
+              <span class="verify-meta">${v.lastTime ? '최근 제보: ' + v.lastTime : '첫 제보 대기'}</span>
             </div>
-            <span class="verify-meta">${v.lastTime ? '최근 제보: ' + v.lastTime : '첫 제보 대기'}</span>
+            <div class="verify-btn-group">
+              <button class="btn-verify btn-ok ${v.myVote === 'oper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'oper')" title="${v.myVote === 'oper' ? '클릭 시 제보 취소' : '캐시백 성공 제보'}">
+                <i class="fa-solid fa-thumbs-up"></i> 캐시백 돼요 <span class="vote-num">${v.oper}</span>
+              </button>
+              <button class="btn-verify btn-bad ${v.myVote === 'inoper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'inoper')" title="${v.myVote === 'inoper' ? '클릭 시 제보 취소' : '캐시백 불가 제보'}">
+                <i class="fa-solid fa-thumbs-down"></i> 안 돼요 <span class="vote-num">${v.inoper}</span>
+              </button>
+            </div>
           </div>
-          <div class="verify-btn-group">
-            <button class="btn-verify btn-ok ${v.myVote === 'oper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'oper')" title="${v.myVote === 'oper' ? '클릭 시 제보 취소' : '캐시백 성공 제보'}">
-              <i class="fa-solid fa-thumbs-up"></i> 캐시백 돼요 <span class="vote-num">${v.oper}</span>
-            </button>
-            <button class="btn-verify btn-bad ${v.myVote === 'inoper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'inoper')" title="${v.myVote === 'inoper' ? '클릭 시 제보 취소' : '캐시백 불가 제보'}">
-              <i class="fa-solid fa-thumbs-down"></i> 안 돼요 <span class="vote-num">${v.inoper}</span>
-            </button>
-          </div>
-        </div>
 
-        <!-- 📍 시민 핀 위치 정확도 검증 & 오류 수정 제보 박스 -->
-        <div class="loc-verify-box" onclick="event.stopPropagation()">
-          <div class="loc-verify-header">
-            <span class="loc-verify-title"><i class="fa-solid fa-map-pin"></i> 지도 핀 위치 검증</span>
-            <span class="loc-verify-status loc-${loc.status}">${loc.statusText}</span>
+          <!-- 📍 시민 핀 위치 정확도 검증 & 오류 수정 제보 박스 -->
+          <div class="loc-verify-box" onclick="event.stopPropagation()">
+            <div class="loc-verify-header">
+              <span class="loc-verify-title"><i class="fa-solid fa-map-pin"></i> 지도 핀 위치 검증</span>
+              <span class="loc-verify-status loc-${loc.status}">${loc.statusText}</span>
+            </div>
+            <div class="loc-btn-group">
+              <button class="btn-loc-verify btn-loc-ok ${loc.myVote === 'locOk' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locOk')" title="${loc.myVote === 'locOk' ? '클릭 시 제보 취소' : '위치 맞음 제보'}">
+                <i class="fa-regular fa-circle-check"></i> 위치 맞음 <span class="vote-num">${loc.locOk}</span>
+              </button>
+              <button class="btn-loc-verify btn-loc-wrong ${loc.myVote === 'locWrong' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locWrong')" title="${loc.myVote === 'locWrong' ? '클릭 시 제보 취소' : '위치 다름 제보'}">
+                <i class="fa-solid fa-triangle-exclamation"></i> 위치 다름 <span class="vote-num">${loc.locWrong}</span>
+              </button>
+              <button class="btn-loc-report" onclick="openLocationReportModal(${st.id})" title="위치 수정 요청">
+                <i class="fa-solid fa-pen-to-square"></i> 수정 제보
+              </button>
+            </div>
+            ${loc.locWrong > 0 ? `<div class="loc-alert-banner"><i class="fa-solid fa-circle-info"></i> 위치 오류 제보가 ${loc.locWrong}건 있습니다. [수정 제보]를 눌러 올바른 위치를 제보해주세요.</div>` : ''}
           </div>
-          <div class="loc-btn-group">
-            <button class="btn-loc-verify btn-loc-ok ${loc.myVote === 'locOk' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locOk')" title="${loc.myVote === 'locOk' ? '클릭 시 제보 취소' : '위치 맞음 제보'}">
-              <i class="fa-regular fa-circle-check"></i> 위치 맞음 <span class="vote-num">${loc.locOk}</span>
-            </button>
-            <button class="btn-loc-verify btn-loc-wrong ${loc.myVote === 'locWrong' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locWrong')" title="${loc.myVote === 'locWrong' ? '클릭 시 제보 취소' : '위치 다름 제보'}">
-              <i class="fa-solid fa-triangle-exclamation"></i> 위치 다름 <span class="vote-num">${loc.locWrong}</span>
-            </button>
-            <button class="btn-loc-report" onclick="openLocationReportModal(${st.id})" title="위치 수정 요청">
-              <i class="fa-solid fa-pen-to-square"></i> 수정 제보
-            </button>
-          </div>
-          ${loc.locWrong > 0 ? `<div class="loc-alert-banner"><i class="fa-solid fa-circle-info"></i> 위치 오류 제보가 ${loc.locWrong}건 있습니다. [수정 제보]를 눌러 올바른 위치를 제보해주세요.</div>` : ''}
         </div>
 
         <div class="card-actions-row">
