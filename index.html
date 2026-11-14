@@ -582,16 +582,20 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      padding: 6px 8px;
+      gap: 6px;
+      padding: 8px 10px;
       border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       border: 1px solid #cbd5e1;
       background: #ffffff;
-      color: #334155;
+      color: #1e293b;
       cursor: pointer;
       transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-verify i {
+      font-size: 14px;
     }
     .btn-verify:hover {
       background: #f8fafc;
@@ -611,8 +615,8 @@
     }
     .vote-num {
       font-family: monospace;
-      font-size: 11px;
-      font-weight: 800;
+      font-size: 13.5px;
+      font-weight: 900;
     }
     .status-pin-dot {
       width: 8px;
@@ -799,16 +803,20 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      padding: 6px 10px;
+      gap: 5px;
+      padding: 8px 10px;
       border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       border: 1px solid #cbd5e1;
       background: #ffffff;
-      color: #334155;
+      color: #1e293b;
       cursor: pointer;
       transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .cand-action-btn i {
+      font-size: 14px;
     }
     .cand-action-btn.btn-yes:hover, .cand-action-btn.btn-yes.voted {
       background: #f0fdf4;
@@ -959,16 +967,20 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      padding: 5px 6px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
+      gap: 5px;
+      padding: 8px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
       border: 1px solid #cbd5e1;
       background: #ffffff;
-      color: #475569;
+      color: #1e293b;
       cursor: pointer;
       transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-loc-verify i {
+      font-size: 14px;
     }
     .btn-loc-verify:hover {
       background: #f1f5f9;
@@ -990,17 +1002,20 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      padding: 5px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
+      gap: 4px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 800;
       border: 1px solid #cbd5e1;
       background: #f8fafc;
       color: #2563eb;
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
+    }
+    .btn-loc-report i {
+      font-size: 13px;
     }
     .btn-loc-report:hover {
       background: #eff6ff;
@@ -1263,7 +1278,7 @@
   <div id="map"></div>
 
   <!-- Floating Buttons -->
-  <div class="fab-container" id="fabContainer">
+  <div class="fab-container sheet-collapsed" id="fabContainer">
     <button class="fab" id="gpsBtn" onclick="findMyLocation()" title="내 위치 찾기">
       <i class="fa-solid fa-location-crosshairs"></i>
     </button>
@@ -1272,8 +1287,8 @@
     </button>
   </div>
 
-  <!-- Bottom Sheet List -->
-  <div class="bottom-sheet" id="bottomSheet">
+  <!-- Bottom Sheet List (초기에는 지도를 시원하게 볼 수 있도록 닫힘 상태 유지) -->
+  <div class="bottom-sheet collapsed" id="bottomSheet">
     <div class="sheet-handle-area" id="sheetHandleArea" onclick="toggleBottomSheet()">
       <div class="sheet-handle"></div>
     </div>
@@ -2658,7 +2673,7 @@
         const m = L.marker([c.lat, c.lng], { icon: customIcon }).addTo(map);
 
         const popupHtml = `
-          <div style="min-width:240px; font-family:'Pretendard', sans-serif;">
+          <div style="min-width:265px; font-family:'Pretendard', sans-serif;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
               <h3 style="font-size:14px; font-weight:800; color:#0f172a; margin:0;">${c.name}</h3>
               <span style="font-size:10px; background:${isApproved ? '#059669':'#7e22ce'}; color:white; padding:2px 6px; border-radius:4px; font-weight:700;">
@@ -2769,7 +2784,7 @@
 
       // Popup Content
       const popupHtml = `
-        <div style="min-width:230px; font-family:'Pretendard', sans-serif;">
+        <div style="min-width:265px; font-family:'Pretendard', sans-serif;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
             <h3 style="font-size:14px; font-weight:800; color:#0f172a; margin:0;">${st.name}</h3>
             <span style="font-size:10px; background:${st.brandColor}; color:white; padding:2px 5px; border-radius:4px; font-weight:700;">${st.brandShort}</span>
@@ -3090,7 +3105,14 @@
     const target = document.getElementById(`card-${id}`);
     if (target) {
       target.classList.add('selected');
-      target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // 하단 바가 열려있을 때만 내부 목록 스크롤 (브라우저나 하단 바를 강제로 끌어올리는 scrollIntoView 절대 금지)
+      if (!isSheetCollapsed) {
+        const listEl = document.getElementById('stationList');
+        if (listEl) {
+          const targetTop = target.offsetTop - listEl.offsetTop;
+          listEl.scrollTo({ top: Math.max(0, targetTop - 10), behavior: 'smooth' });
+        }
+      }
     }
   }
 
@@ -3149,8 +3171,8 @@
     return R * c;
   }
 
-  // Bottom Sheet Toggle & Gestures
-  let isSheetCollapsed = false;
+  // Bottom Sheet Toggle & Gestures (초기 상태: 지도를 가리지 않도록 닫힘 상태 유지)
+  let isSheetCollapsed = true;
 
   function toggleBottomSheet(forceState = null) {
     if (forceState !== null) {
