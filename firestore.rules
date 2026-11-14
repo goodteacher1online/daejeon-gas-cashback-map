@@ -3,11 +3,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // 온통대전 주유소 현장 검증 컬렉션
     match /daejeon_gas_verifications/{stationId} {
-      // 모든 접속자 읽기 허용
+      // 모든 접속자 읽기 허용 (로그인 없이 누구나 현황 열람)
       allow read: if true;
-      // 투표 카운트 증가/감소 및 최근 시간 업데이트 허용
-      allow write: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['oper', 'inoper', 'lastTime', 'updatedAt']);
+      // 정해진 투표 필드만 쓰기/수정 허용 (악의적 필드 주입 원천 차단)
+      allow write: if request.resource.data.keys().hasOnly(['oper', 'inoper', 'lastTime', 'updatedAt']);
     }
   }
 }
