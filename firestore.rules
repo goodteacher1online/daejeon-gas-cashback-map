@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 온통대전 주유소 현장 검증 컬렉션
+    match /daejeon_gas_verifications/{stationId} {
+      // 모든 접속자 읽기 허용
+      allow read: if true;
+      // 투표 카운트 증가/감소 및 최근 시간 업데이트 허용
+      allow write: if request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['oper', 'inoper', 'lastTime', 'updatedAt']);
+    }
+  }
+}
