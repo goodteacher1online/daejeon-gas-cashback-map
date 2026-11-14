@@ -672,6 +672,301 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+
+    /* 📍 위치 검증 & 수정 제보 박스 */
+    .loc-verify-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-top: 6px;
+      font-size: 11px;
+    }
+    .loc-verify-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .loc-verify-title {
+      font-weight: 700;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+    }
+    .loc-verify-status {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+    }
+    .loc-verify-status.loc-ok {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .loc-verify-status.loc-warn {
+      background: #fefce8;
+      color: #854d0e;
+      border: 1px solid #fde047;
+    }
+    .loc-verify-status.loc-bad {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .loc-verify-status.loc-none {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+    .loc-btn-group {
+      display: flex;
+      gap: 5px;
+    }
+    .btn-loc-verify {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 5px 6px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-loc-verify:hover {
+      background: #f1f5f9;
+    }
+    .btn-loc-verify.btn-loc-ok:hover, .btn-loc-verify.btn-loc-ok.voted {
+      background: #f0fdf4;
+      border-color: #86efac;
+      color: #166534;
+    }
+    .btn-loc-verify.btn-loc-wrong:hover, .btn-loc-verify.btn-loc-wrong.voted {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+    .btn-loc-verify.voted {
+      box-shadow: inset 0 0 0 1.5px currentColor;
+    }
+    .btn-loc-report {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #2563eb;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-loc-report:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+    .loc-alert-banner {
+      margin-top: 5px;
+      padding: 4px 6px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      font-size: 10px;
+      color: #92400e;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      line-height: 1.3;
+    }
+
+    /* 핀 위 위치 주의 뱃지 */
+    .pin-loc-warn-badge {
+      font-size: 9px;
+      background: #dc2626;
+      color: white;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* 위치 수정 제보 모달 */
+    .loc-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .loc-modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .loc-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 440px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalPop {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .loc-modal-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+    }
+    .loc-modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    .loc-modal-close:hover {
+      color: #0f172a;
+    }
+    .loc-modal-body {
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .loc-current-info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .loc-external-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-decoration: none;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      transition: all 0.15s ease;
+    }
+    .loc-external-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .loc-report-textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      box-sizing: border-box;
+      resize: vertical;
+      line-height: 1.5;
+      color: #1e293b;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .loc-report-textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+    .loc-reports-list {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      max-height: 120px;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .loc-report-item {
+      padding: 6px 8px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+    .loc-modal-footer {
+      padding: 12px 16px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: #f8fafc;
+    }
+    .loc-btn-secondary {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+    }
+    .loc-btn-secondary:hover {
+      background: #f1f5f9;
+    }
+    .loc-btn-primary {
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      background: #2563eb;
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.15s ease;
+    }
+    .loc-btn-primary:hover {
+      background: #1d4ed8;
+    }
   </style>
 </head>
 <body>
@@ -936,18 +1231,18 @@
 
   // 각 주유소별 기본 검증 데이터 (초기값: 0건 클린 리셋)
   let verificationData = {
-    1: { oper: 0, inoper: 0, lastTime: "" },
-    2: { oper: 0, inoper: 0, lastTime: "" },
-    3: { oper: 0, inoper: 0, lastTime: "" },
-    4: { oper: 0, inoper: 0, lastTime: "" },
-    5: { oper: 0, inoper: 0, lastTime: "" },
-    6: { oper: 0, inoper: 0, lastTime: "" },
-    7: { oper: 0, inoper: 0, lastTime: "" },
-    8: { oper: 0, inoper: 0, lastTime: "" },
-    9: { oper: 0, inoper: 0, lastTime: "" },
-    10: { oper: 0, inoper: 0, lastTime: "" },
-    11: { oper: 0, inoper: 0, lastTime: "" },
-    12: { oper: 0, inoper: 0, lastTime: "" }
+    1: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    2: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    3: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    4: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    5: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    6: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    7: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    8: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    9: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    10: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    11: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" },
+    12: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" }
   };
 
   function initVerification() {
@@ -964,7 +1259,7 @@
 
     // 0건으로 완전 리셋
     STATIONS.forEach(s => {
-      verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "" };
+      verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
     });
 
     if (typeof firebase !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.apiKey.length > 5 && !firebaseConfig.apiKey.includes('YOUR_')) {
@@ -978,7 +1273,7 @@
         db.collection("daejeon_gas_verifications").onSnapshot(snapshot => {
           // 깨끗하게 0으로 초기화 후 Firestore 실제 데이터만 매핑
           STATIONS.forEach(s => {
-            verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "" };
+            verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
           });
           snapshot.forEach(doc => {
             const id = Number(doc.id);
@@ -987,7 +1282,10 @@
               verificationData[id] = {
                 oper: d.oper || 0,
                 inoper: d.inoper || 0,
-                lastTime: d.lastTime || ""
+                lastTime: d.lastTime || "",
+                locOk: d.locOk || 0,
+                locWrong: d.locWrong || 0,
+                lastLocTime: d.lastLocTime || ""
               };
             }
           });
@@ -1178,6 +1476,318 @@
     }, 2500);
   }
 
+  // ==========================================
+  // 📍 시민 핀 위치 정확도 검증 & 오류 수정 제보 시스템
+  // ==========================================
+  function getMyLocVote(id) {
+    const today = new Date().toISOString().slice(0, 10);
+    return localStorage.getItem(`loc_vote_st_${id}_${today}`) || localStorage.getItem(`my_loc_vote_${id}`) || null;
+  }
+
+  function getLocSummary(id) {
+    const d = verificationData[id] || { locOk: 0, locWrong: 0, lastLocTime: '' };
+    const locOk = d.locOk || 0;
+    const locWrong = d.locWrong || 0;
+    const total = locOk + locWrong;
+    let status = 'none'; // ok, warn, bad, none
+    let statusText = '위치 미검증';
+
+    if (locWrong > 0) {
+      if (locWrong >= 2 && locWrong > locOk) {
+        status = 'bad';
+        statusText = `위치 상이 의심 (${locWrong}명 제보)`;
+      } else {
+        status = 'warn';
+        statusText = `위치 확인 필요 (오류 ${locWrong}건)`;
+      }
+    } else if (locOk > 0) {
+      status = 'ok';
+      statusText = `위치 일치 확인 (${locOk}명)`;
+    }
+
+    const myVote = getMyLocVote(id);
+    return { locOk, locWrong, total, status, statusText, myVote, lastLocTime: d.lastLocTime || '' };
+  }
+
+  function voteLocation(id, type) {
+    if (window.event) window.event.stopPropagation();
+    const today = new Date().toISOString().slice(0, 10);
+    const voteKey = `loc_vote_st_${id}_${today}`;
+    const currentVote = localStorage.getItem(voteKey) || localStorage.getItem(`my_loc_vote_${id}`);
+    const nowTime = "오늘 " + (new Date()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+
+    // 1. 이미 동일한 버튼을 누른 경우 -> 취소 (Toggle Off)
+    if (currentVote === type) {
+      if (isFirebaseReady && db) {
+        const dec = firebase.firestore.FieldValue.increment(-1);
+        const updateData = {
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (type === 'locOk') updateData.locOk = dec;
+        else updateData.locWrong = dec;
+
+        db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
+          .then(() => {
+            localStorage.removeItem(voteKey);
+            localStorage.removeItem(`my_loc_vote_${id}`);
+            showToast("↩️ 위치 정확도 제보가 취소되었습니다.");
+          })
+          .catch(err => {
+            showToast("취소 처리 오류: " + err.message);
+          });
+      } else {
+        if (verificationData[id]) {
+          if (type === 'locOk' && verificationData[id].locOk > 0) verificationData[id].locOk--;
+          if (type === 'locWrong' && verificationData[id].locWrong > 0) verificationData[id].locWrong--;
+        }
+        localStorage.removeItem(voteKey);
+        localStorage.removeItem(`my_loc_vote_${id}`);
+        renderMarkers();
+        renderList();
+        showToast("↩️ 위치 정확도 제보가 취소되었습니다.");
+      }
+      return;
+    }
+
+    // 2. 다른 버튼으로 변경하는 경우 (Switch: 기존 -1, 신규 +1)
+    if (currentVote && currentVote !== type) {
+      if (isFirebaseReady && db) {
+        const inc = firebase.firestore.FieldValue.increment(1);
+        const dec = firebase.firestore.FieldValue.increment(-1);
+        const updateData = {
+          lastLocTime: nowTime,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (type === 'locOk') {
+          updateData.locOk = inc;
+          updateData.locWrong = dec;
+        } else {
+          updateData.locWrong = inc;
+          updateData.locOk = dec;
+        }
+
+        db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
+          .then(() => {
+            localStorage.setItem(voteKey, type);
+            localStorage.setItem(`my_loc_vote_${id}`, type);
+            showToast(type === 'locOk' ? "🔄 '위치 맞음'으로 제보가 변경되었습니다!" : "🔄 '위치 다름'으로 제보가 변경되었습니다!");
+            if (type === 'locWrong') {
+              setTimeout(() => openLocationReportModal(id), 500);
+            }
+          })
+          .catch(err => {
+            showToast("제보 변경 오류: " + err.message);
+          });
+      } else {
+        if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: '', locOk: 0, locWrong: 0, lastLocTime: '' };
+        if (type === 'locOk') {
+          verificationData[id].locOk++;
+          if (verificationData[id].locWrong > 0) verificationData[id].locWrong--;
+        } else {
+          verificationData[id].locWrong++;
+          if (verificationData[id].locOk > 0) verificationData[id].locOk--;
+        }
+        verificationData[id].lastLocTime = nowTime;
+
+        localStorage.setItem(voteKey, type);
+        localStorage.setItem(`my_loc_vote_${id}`, type);
+        renderMarkers();
+        renderList();
+        showToast(type === 'locOk' ? "🔄 '위치 맞음'으로 제보가 변경되었습니다!" : "🔄 '위치 다름'으로 제보가 변경되었습니다!");
+        if (type === 'locWrong') {
+          setTimeout(() => openLocationReportModal(id), 500);
+        }
+      }
+      return;
+    }
+
+    // 3. 신규 투표 (First Vote)
+    if (isFirebaseReady && db) {
+      const inc = firebase.firestore.FieldValue.increment(1);
+      const updateData = {
+        lastLocTime: nowTime,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (type === 'locOk') updateData.locOk = inc;
+      else updateData.locWrong = inc;
+
+      db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
+        .then(() => {
+          localStorage.setItem(voteKey, type);
+          localStorage.setItem(`my_loc_vote_${id}`, type);
+          showToast(type === 'locOk' ? "📍 '위치 맞음' 제보가 실시간 반영되었습니다!" : "⚠️ '위치 다름' 제보가 실시간 반영되었습니다!");
+          if (type === 'locWrong') {
+            setTimeout(() => openLocationReportModal(id), 500);
+          }
+        })
+        .catch(err => {
+          showToast("제보 오류: " + err.message);
+        });
+    } else {
+      if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: '', locOk: 0, locWrong: 0, lastLocTime: '' };
+      if (type === 'locOk') verificationData[id].locOk++;
+      else verificationData[id].locWrong++;
+      verificationData[id].lastLocTime = nowTime;
+
+      localStorage.setItem(voteKey, type);
+      localStorage.setItem(`my_loc_vote_${id}`, type);
+      renderMarkers();
+      renderList();
+      showToast(type === 'locOk' ? "📍 '위치 맞음' 제보가 반영되었습니다!" : "⚠️ '위치 다름' 제보가 반영되었습니다!");
+      if (type === 'locWrong') {
+        setTimeout(() => openLocationReportModal(id), 500);
+      }
+    }
+  }
+
+  // 📝 상세 위치 수정 제보 모달 제어
+  let activeReportingStationId = null;
+
+  function openLocationReportModal(stationId) {
+    if (window.event) window.event.stopPropagation();
+    activeReportingStationId = stationId;
+    const st = STATIONS.find(s => s.id === stationId);
+    if (!st) return;
+
+    const titleEl = document.getElementById('locModalTitle');
+    const addrEl = document.getElementById('locModalAddr');
+    const kakaoLink = document.getElementById('locModalKakaoLink');
+    const naverLink = document.getElementById('locModalNaverLink');
+    const noteInput = document.getElementById('locReportNote');
+
+    if (titleEl) titleEl.innerText = `${st.name} 위치 수정 제보`;
+    if (addrEl) addrEl.innerText = st.addr;
+    if (kakaoLink) kakaoLink.href = st.placeUrl || `https://map.kakao.com/link/search/${encodeURIComponent(st.name)}`;
+    if (naverLink) naverLink.href = `https://map.naver.com/p/search/${encodeURIComponent(st.name)}`;
+    if (noteInput) noteInput.value = '';
+
+    const modal = document.getElementById('locReportModal');
+    if (modal) modal.classList.add('show');
+
+    // 기존 등록된 시민 제보 내역 로드
+    loadRecentLocationReports(stationId);
+  }
+
+  function closeLocationReportModal(e) {
+    if (e && e.target && e.target.id !== 'locReportModal' && !e.target.classList.contains('loc-modal-close') && !e.target.classList.contains('loc-btn-secondary')) {
+      return;
+    }
+    const modal = document.getElementById('locReportModal');
+    if (modal) modal.classList.remove('show');
+    activeReportingStationId = null;
+  }
+
+  function loadRecentLocationReports(stationId) {
+    const listEl = document.getElementById('locRecentReportsList');
+    const areaEl = document.getElementById('locRecentReportsArea');
+    if (!listEl || !areaEl) return;
+    listEl.innerHTML = '<div style="font-size:11px; color:#94a3b8; text-align:center; padding:6px;">제보 내역 조회중...</div>';
+    areaEl.style.display = 'block';
+
+    if (isFirebaseReady && db) {
+      db.collection("daejeon_gas_location_reports")
+        .where("stationId", "==", stationId)
+        .limit(5)
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            areaEl.style.display = 'none';
+            return;
+          }
+          listEl.innerHTML = '';
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const item = document.createElement('div');
+            item.className = 'loc-report-item';
+            let timeStr = '최근';
+            if (data.createdAt && data.createdAt.toDate) {
+              const d = data.createdAt.toDate();
+              timeStr = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            }
+            item.innerHTML = `
+              <div style="font-size:11px; color:#1e293b; font-weight:600; line-height:1.4;">${escapeHtml(data.note)}</div>
+              <div style="font-size:10px; color:#94a3b8; text-align:right; margin-top:2px;">${timeStr} 접수</div>
+            `;
+            listEl.appendChild(item);
+          });
+          areaEl.style.display = 'block';
+        })
+        .catch(err => {
+          console.warn("Location reports load error:", err);
+          areaEl.style.display = 'none';
+        });
+    } else {
+      areaEl.style.display = 'none';
+    }
+  }
+
+  function submitLocationReport() {
+    if (!activeReportingStationId) return;
+    const st = STATIONS.find(s => s.id === activeReportingStationId);
+    const noteInput = document.getElementById('locReportNote');
+    const note = noteInput.value.trim();
+    if (!note) {
+      alert("수정할 위치에 대한 설명이나 올바른 지도 링크를 입력해주세요.");
+      noteInput.focus();
+      return;
+    }
+
+    const submitBtn = document.getElementById('locSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 전송중...';
+
+    if (isFirebaseReady && db) {
+      const nowTime = "오늘 " + (new Date()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+      const inc = firebase.firestore.FieldValue.increment(1);
+
+      db.collection("daejeon_gas_location_reports").add({
+        stationId: activeReportingStationId,
+        stationName: st ? st.name : '',
+        note: note,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        // 위치 상이 통계도 함께 누적
+        const today = new Date().toISOString().slice(0, 10);
+        const voteKey = `loc_vote_st_${activeReportingStationId}_${today}`;
+        const currentVote = localStorage.getItem(voteKey);
+
+        if (currentVote !== 'locWrong') {
+          db.collection("daejeon_gas_verifications").doc(String(activeReportingStationId)).set({
+            locWrong: inc,
+            lastLocTime: nowTime,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).catch(() => {});
+          localStorage.setItem(voteKey, 'locWrong');
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 제보 등록';
+        closeLocationReportModal();
+        showToast("🙏 소중한 위치 제보가 접수되었습니다! 검토 후 지도에 신속히 반영하겠습니다.");
+      }).catch(err => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 제보 등록';
+        showToast("제보 전송 실패: " + err.message);
+      });
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 제보 등록';
+      closeLocationReportModal();
+      showToast("🙏 위치 수정 제보가 기록되었습니다! (로컬 모드)");
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag));
+  }
+
   let map = null;
   let markers = [];
   let currentFuel = 'gasoline'; // 기본값: 휘발유
@@ -1257,6 +1867,7 @@
       const price = getStationPrice(st);
       const isBest = price && price === minPrice;
       const v = getVerificationSummary(st.id);
+      const loc = getLocSummary(st.id);
 
       let priceClass = '';
       if (currentFuel === 'diesel') priceClass = 'diesel-val';
@@ -1274,7 +1885,10 @@
         }
       }
 
-      // 마커 HTML: 주유소 이름 + 유가 + 시민 검증 뱃지
+      // 위치 오류 제보가 있을 때 핀에 주의 표시
+      const locWarnPin = loc.locWrong > 0 ? `<span class="pin-loc-warn-badge" title="위치 오류 제보 ${loc.locWrong}건">⚠️위치</span>` : '';
+
+      // 마커 HTML: 주유소 이름 + 유가 + 시민 검증 뱃지 + 위치 주의 뱃지
       const markerHtml = `
         <div class="custom-station-pin ${brandClass} ${isLpg ? 'marker-lpg' : ''} ${isBest ? 'best-price' : ''}">
           <span class="status-pin-dot status-${v.status}" title="${v.statusText}"></span>
@@ -1282,6 +1896,7 @@
           <span class="station-name">${st.name}</span>
           <span class="price-val ${priceClass}">${price ? price.toLocaleString() + '원' : '-'}</span>
           ${verifyPinBadge}
+          ${locWarnPin}
           ${isBest ? '<span class="best-badge">최저가</span>' : ''}
           <div class="anchor-dot"></div>
         </div>
@@ -1310,8 +1925,8 @@
             ${st.fuel.lpg ? `<div>LPG: <b style="color:#d97706;">${st.fuel.lpg.toLocaleString()}원</b></div>` : ''}
           </div>
 
-          <!-- 시민 실시간 현장 검증 섹션 -->
-          <div class="verify-box" onclick="event.stopPropagation()" style="margin-bottom:8px;">
+          <!-- 시민 실시간 캐시백 현장 검증 섹션 -->
+          <div class="verify-box" onclick="event.stopPropagation()" style="margin-bottom:6px;">
             <div class="verify-status-bar">
               <div class="verify-badge status-${v.status}">
                 <span class="status-dot"></span>
@@ -1328,6 +1943,26 @@
                 <i class="fa-solid fa-thumbs-down"></i> 안 돼요 <span class="vote-num">${v.inoper}</span>
               </button>
             </div>
+          </div>
+
+          <!-- 📍 시민 핀 위치 정확도 검증 & 오류 수정 제보 섹션 -->
+          <div class="loc-verify-box" onclick="event.stopPropagation()" style="margin-bottom:8px;">
+            <div class="loc-verify-header">
+              <span class="loc-verify-title"><i class="fa-solid fa-map-pin"></i> 핀 위치 정확도</span>
+              <span class="loc-verify-status loc-${loc.status}">${loc.statusText}</span>
+            </div>
+            <div class="loc-btn-group">
+              <button class="btn-loc-verify btn-loc-ok ${loc.myVote === 'locOk' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locOk')" title="${loc.myVote === 'locOk' ? '클릭 시 제보 취소' : '위치 맞음 제보'}">
+                <i class="fa-regular fa-circle-check"></i> 맞음 <span class="vote-num">${loc.locOk}</span>
+              </button>
+              <button class="btn-loc-verify btn-loc-wrong ${loc.myVote === 'locWrong' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locWrong')" title="${loc.myVote === 'locWrong' ? '클릭 시 제보 취소' : '위치 다름 제보'}">
+                <i class="fa-solid fa-triangle-exclamation"></i> 다름 <span class="vote-num">${loc.locWrong}</span>
+              </button>
+              <button class="btn-loc-report" onclick="openLocationReportModal(${st.id})" title="위치 수정 요청">
+                <i class="fa-solid fa-pen-to-square"></i> 제보
+              </button>
+            </div>
+            ${loc.locWrong > 0 ? `<div class="loc-alert-banner"><i class="fa-solid fa-circle-info"></i> 위치 오류 제보가 ${loc.locWrong}건 있습니다. [제보]로 올바른 위치를 알려주세요.</div>` : ''}
           </div>
 
           <p style="font-size:11px; color:#059669; font-weight:700; margin-bottom:8px;"><i class="fa-solid fa-check"></i> 가맹점 등록명: ${st.lawName}</p>
@@ -1375,6 +2010,7 @@
       const isLpg = st.type === 'lpg';
       const price = getStationPrice(st);
       const v = getVerificationSummary(st.id);
+      const loc = getLocSummary(st.id);
       const card = document.createElement('div');
       card.className = 'station-card';
       card.id = `card-${st.id}`;
@@ -1395,6 +2031,7 @@
               ${st.name}
               <span class="brand-pill" style="background:${st.brandColor};">${st.brandShort}</span>
               ${idx === 0 && currentSort === 'price' ? '<span class="best-badge" style="font-size:10px; padding:2px 6px;">최저가</span>' : ''}
+              ${loc.locWrong > 0 ? `<span style="font-size:10px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:2px 6px; border-radius:4px; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> 위치제보 ${loc.locWrong}</span>` : ''}
             </div>
             <div class="card-sub-info">
               <span>${st.brand}</span>
@@ -1411,7 +2048,7 @@
 
         <div class="card-addr"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${st.addr}</div>
 
-        <!-- 시민 실시간 현장 검증 박스 -->
+        <!-- 시민 실시간 캐시백 현장 검증 박스 -->
         <div class="verify-box" onclick="event.stopPropagation()">
           <div class="verify-status-bar">
             <div class="verify-badge status-${v.status}">
@@ -1429,6 +2066,26 @@
               <i class="fa-solid fa-thumbs-down"></i> 안 돼요 <span class="vote-num">${v.inoper}</span>
             </button>
           </div>
+        </div>
+
+        <!-- 📍 시민 핀 위치 정확도 검증 & 오류 수정 제보 박스 -->
+        <div class="loc-verify-box" onclick="event.stopPropagation()">
+          <div class="loc-verify-header">
+            <span class="loc-verify-title"><i class="fa-solid fa-map-pin"></i> 지도 핀 위치 검증</span>
+            <span class="loc-verify-status loc-${loc.status}">${loc.statusText}</span>
+          </div>
+          <div class="loc-btn-group">
+            <button class="btn-loc-verify btn-loc-ok ${loc.myVote === 'locOk' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locOk')" title="${loc.myVote === 'locOk' ? '클릭 시 제보 취소' : '위치 맞음 제보'}">
+              <i class="fa-regular fa-circle-check"></i> 위치 맞음 <span class="vote-num">${loc.locOk}</span>
+            </button>
+            <button class="btn-loc-verify btn-loc-wrong ${loc.myVote === 'locWrong' ? 'voted' : ''}" onclick="voteLocation(${st.id}, 'locWrong')" title="${loc.myVote === 'locWrong' ? '클릭 시 제보 취소' : '위치 다름 제보'}">
+              <i class="fa-solid fa-triangle-exclamation"></i> 위치 다름 <span class="vote-num">${loc.locWrong}</span>
+            </button>
+            <button class="btn-loc-report" onclick="openLocationReportModal(${st.id})" title="위치 수정 요청">
+              <i class="fa-solid fa-pen-to-square"></i> 수정 제보
+            </button>
+          </div>
+          ${loc.locWrong > 0 ? `<div class="loc-alert-banner"><i class="fa-solid fa-circle-info"></i> 위치 오류 제보가 ${loc.locWrong}건 있습니다. [수정 제보]를 눌러 올바른 위치를 제보해주세요.</div>` : ''}
         </div>
 
         <div class="card-actions-row">
@@ -1606,8 +2263,65 @@
     initMap();
     initSheetGestures();
     checkLatestPricesOnLoad();
+
+    // ESC 키로 모달 닫기 지원
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLocationReportModal();
+      }
+    });
   };
 </script>
 <div id="toastMsg"></div>
+
+<!-- 📍 위치 오류 수정 시민 제보 모달 -->
+<div id="locReportModal" class="loc-modal-overlay" onclick="closeLocationReportModal(event)">
+  <div class="loc-modal" onclick="event.stopPropagation()">
+    <div class="loc-modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-map-location-dot" style="color:#2563eb; font-size:16px;"></i>
+        <h3 id="locModalTitle" style="margin:0; font-size:15px; font-weight:800; color:#0f172a;">위치 수정 제보</h3>
+      </div>
+      <button class="loc-modal-close" onclick="closeLocationReportModal()">&times;</button>
+    </div>
+    
+    <div class="loc-modal-body">
+      <div class="loc-current-info">
+        <div style="font-size:11px; color:#64748b; font-weight:600; margin-bottom:3px;">현재 지도 등록 주소</div>
+        <div id="locModalAddr" style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:8px;">-</div>
+        <div style="display:flex; gap:6px;">
+          <a id="locModalKakaoLink" href="#" target="_blank" class="loc-external-btn">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 카카오맵 위치 확인
+          </a>
+          <a id="locModalNaverLink" href="#" target="_blank" class="loc-external-btn">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 네이버 지도 검색
+          </a>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <label for="locReportNote" style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:6px;">
+          올바른 위치 설명 또는 지도 링크 <span style="color:#ef4444;">*</span>
+        </label>
+        <textarea id="locReportNote" rows="3" class="loc-report-textarea" placeholder="예: 실제 주유소 입구는 30m 뒤 삼거리 쪽입니다. / 올바른 카카오맵 링크 또는 정확한 도로명 주소를 입력해주세요."></textarea>
+      </div>
+
+      <!-- 접수된 이전 제보 목록 (있을 경우 표시) -->
+      <div id="locRecentReportsArea" style="margin-top:12px; display:none;">
+        <div style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:6px;">
+          <i class="fa-solid fa-clock-rotate-left"></i> 접수된 시민 제보 내역
+        </div>
+        <div id="locRecentReportsList" class="loc-reports-list"></div>
+      </div>
+    </div>
+
+    <div class="loc-modal-footer">
+      <button class="loc-btn-secondary" onclick="closeLocationReportModal()">닫기</button>
+      <button id="locSubmitBtn" class="loc-btn-primary" onclick="submitLocationReport()">
+        <i class="fa-solid fa-paper-plane"></i> 제보 등록
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

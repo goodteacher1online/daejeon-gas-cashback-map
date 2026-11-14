@@ -2,7 +2,12 @@
 
 온통대전(대전사랑카드) 캐시백 대상 주유소(9곳)·LPG충전소(3곳) 총 12곳의 유가를 지도에서 확인합니다.
 
+- **실시간 유가 자동 갱신**: GitHub Actions를 통한 하루 2회(07:00 / 16:00 KST) 최신 유가 동기화
+- **시민 현장 검증 시스템**: Firebase Firestore 실시간 연동을 통한 캐시백 가능/불가 시민 투표 및 취소·변경 지원
+- **지도 위치 정확도 검증 & 오류 수정 제보**: 주유소 핀 위치의 일치/상이 여부 투표 및 상세 위치 수정 제보 접수 모달 제공
+
 - `index.html` — 지도 페이지 (GitHub Pages로 서빙)
+- `firestore.rules` — 프로덕션 보안 규칙 (투표 및 위치 제보 필드 검증)
 - `latest_station_prices.json` — GitHub Actions가 주기적으로 갱신하는 유가 스냅샷
 - `scripts/update_prices.py` — 카카오맵에서 유가를 스크래핑해 위 두 파일을 갱신하는 스크립트
 - `.github/workflows/update-prices.yml` — 하루 2회(07:00 / 16:00 KST) 자동 실행
