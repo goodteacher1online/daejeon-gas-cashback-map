@@ -1029,14 +1029,93 @@
     if (window.event) window.event.stopPropagation();
     const today = new Date().toISOString().slice(0, 10);
     const voteKey = `vote_st_${id}_${today}`;
+    const currentVote = localStorage.getItem(voteKey) || localStorage.getItem(`my_vote_${id}`);
+    const nowTime = "오늘 " + (new Date()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 
-    if (localStorage.getItem(voteKey)) {
-      showToast("⚠️ 오늘 이미 이 주유소의 현장 검증에 참여하셨습니다!");
+    // 1. 이미 동일한 버튼을 누른 경우 -> 취소 (Toggle Off)
+    if (currentVote === type) {
+      if (isFirebaseReady && db) {
+        const dec = firebase.firestore.FieldValue.increment(-1);
+        const updateData = {
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (type === 'oper') updateData.oper = dec;
+        else updateData.inoper = dec;
+
+        db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
+          .then(() => {
+            localStorage.removeItem(voteKey);
+            localStorage.removeItem(`my_vote_${id}`);
+            showToast("↩️ 현장 검증 제보가 취소되었습니다.");
+          })
+          .catch(err => {
+            showToast("취소 처리 오류: " + err.message);
+          });
+      } else {
+        // Local Fallback
+        if (verificationData[id]) {
+          if (type === 'oper' && verificationData[id].oper > 0) verificationData[id].oper--;
+          if (type === 'inoper' && verificationData[id].inoper > 0) verificationData[id].inoper--;
+        }
+        localStorage.removeItem(voteKey);
+        localStorage.removeItem(`my_vote_${id}`);
+        localStorage.setItem("daejeon_gas_verifications", JSON.stringify(verificationData));
+        renderMarkers();
+        renderList();
+        showToast("↩️ 현장 검증 제보가 취소되었습니다.");
+      }
       return;
     }
 
-    const nowTime = "오늘 " + (new Date()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    // 2. 다른 버튼으로 변경하는 경우 (Switch: 기존 -1, 신규 +1)
+    if (currentVote && currentVote !== type) {
+      if (isFirebaseReady && db) {
+        const inc = firebase.firestore.FieldValue.increment(1);
+        const dec = firebase.firestore.FieldValue.increment(-1);
+        const updateData = {
+          lastTime: nowTime,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (type === 'oper') {
+          updateData.oper = inc;
+          updateData.inoper = dec;
+        } else {
+          updateData.inoper = inc;
+          updateData.oper = dec;
+        }
 
+        db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
+          .then(() => {
+            localStorage.setItem(voteKey, type);
+            localStorage.setItem(`my_vote_${id}`, type);
+            showToast(type === 'oper' ? "🔄 '캐시백 성공'으로 제보가 변경되었습니다!" : "🔄 '캐시백 불가'로 제보가 변경되었습니다!");
+          })
+          .catch(err => {
+            showToast("제보 변경 오류: " + err.message);
+          });
+      } else {
+        // Local Fallback
+        if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: '' };
+        if (type === 'oper') {
+          verificationData[id].oper++;
+          if (verificationData[id].inoper > 0) verificationData[id].inoper--;
+        } else {
+          verificationData[id].inoper++;
+          if (verificationData[id].oper > 0) verificationData[id].oper--;
+        }
+        verificationData[id].lastTime = nowTime;
+
+        localStorage.setItem(voteKey, type);
+        localStorage.setItem(`my_vote_${id}`, type);
+        localStorage.setItem("daejeon_gas_verifications", JSON.stringify(verificationData));
+        renderMarkers();
+        renderList();
+        showToast(type === 'oper' ? "🔄 '캐시백 성공'으로 제보가 변경되었습니다!" : "🔄 '캐시백 불가'로 제보가 변경되었습니다!");
+      }
+      return;
+    }
+
+    // 3. 신규 투표 (First Vote)
     if (isFirebaseReady && db) {
       const inc = firebase.firestore.FieldValue.increment(1);
       const updateData = {
@@ -1050,13 +1129,13 @@
         .then(() => {
           localStorage.setItem(voteKey, type);
           localStorage.setItem(`my_vote_${id}`, type);
-          showToast(type === 'oper' ? "🟢 '캐시백 성공' 제보가 실시간 반영되었습니다!" : "🔴 '캐시백 불가' 제보가 실시간 반영되었습니다!");
+          showToast(type === 'oper' ? "🟢 '캐시백 성공' 제보가 실시간 반영되었습니다! (다시 누르면 취소)" : "🔴 '캐시백 불가' 제보가 실시간 반영되었습니다! (다시 누르면 취소)");
         })
         .catch(err => {
           showToast("제보 전송 오류: " + err.message);
         });
     } else {
-      // Local & Fallback
+      // Local Fallback
       if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: '' };
       if (type === 'oper') verificationData[id].oper++;
       else verificationData[id].inoper++;
@@ -1065,10 +1144,9 @@
       localStorage.setItem(voteKey, type);
       localStorage.setItem(`my_vote_${id}`, type);
       localStorage.setItem("daejeon_gas_verifications", JSON.stringify(verificationData));
-
       renderMarkers();
       renderList();
-      showToast(type === 'oper' ? "🟢 '캐시백 성공' 제보가 반영되었습니다!" : "🔴 '캐시백 불가' 제보가 반영되었습니다!");
+      showToast(type === 'oper' ? "🟢 '캐시백 성공' 제보가 반영되었습니다! (다시 누르면 취소)" : "🔴 '캐시백 불가' 제보가 반영되었습니다! (다시 누르면 취소)");
     }
   }
 
@@ -1230,10 +1308,10 @@
               <span class="verify-meta">${v.lastTime ? '최근: ' + v.lastTime : '첫 제보 대기'}</span>
             </div>
             <div class="verify-btn-group">
-              <button class="btn-verify btn-ok ${v.myVote === 'oper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'oper')">
+              <button class="btn-verify btn-ok ${v.myVote === 'oper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'oper')" title="${v.myVote === 'oper' ? '클릭 시 제보 취소' : '캐시백 성공 제보'}">
                 <i class="fa-solid fa-thumbs-up"></i> 돼요 <span class="vote-num">${v.oper}</span>
               </button>
-              <button class="btn-verify btn-bad ${v.myVote === 'inoper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'inoper')">
+              <button class="btn-verify btn-bad ${v.myVote === 'inoper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'inoper')" title="${v.myVote === 'inoper' ? '클릭 시 제보 취소' : '캐시백 불가 제보'}">
                 <i class="fa-solid fa-thumbs-down"></i> 안 돼요 <span class="vote-num">${v.inoper}</span>
               </button>
             </div>
@@ -1331,10 +1409,10 @@
             <span class="verify-meta">${v.lastTime ? '최근 제보: ' + v.lastTime : '첫 제보 대기'}</span>
           </div>
           <div class="verify-btn-group">
-            <button class="btn-verify btn-ok ${v.myVote === 'oper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'oper')">
+            <button class="btn-verify btn-ok ${v.myVote === 'oper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'oper')" title="${v.myVote === 'oper' ? '클릭 시 제보 취소' : '캐시백 성공 제보'}">
               <i class="fa-solid fa-thumbs-up"></i> 캐시백 돼요 <span class="vote-num">${v.oper}</span>
             </button>
-            <button class="btn-verify btn-bad ${v.myVote === 'inoper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'inoper')">
+            <button class="btn-verify btn-bad ${v.myVote === 'inoper' ? 'voted' : ''}" onclick="voteStation(${st.id}, 'inoper')" title="${v.myVote === 'inoper' ? '클릭 시 제보 취소' : '캐시백 불가 제보'}">
               <i class="fa-solid fa-thumbs-down"></i> 안 돼요 <span class="vote-num">${v.inoper}</span>
             </button>
           </div>
