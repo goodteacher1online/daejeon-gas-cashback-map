@@ -15,7 +15,7 @@ KST = datetime.timezone(datetime.timedelta(hours=9))
 
 TARGETS = [
     {"id": 1, "name": "에이스주유소", "url": "https://place.map.kakao.com/1445954313"},
-    {"id": 2, "name": "가수원주유소", "url": "https://map.kakao.com/?q=대전+서구+계백로+1176+가수원주유소"},
+    {"id": 2, "name": "가수원주유소", "url": "https://place.map.kakao.com/1744455883"},
     {"id": 3, "name": "대동현대주유소", "url": "https://place.map.kakao.com/1439720917"},
     {"id": 4, "name": "방동주유소", "url": "https://place.map.kakao.com/11069446"},
     {"id": 5, "name": "만년교셀프주유소", "url": "https://place.map.kakao.com/10345384"},
