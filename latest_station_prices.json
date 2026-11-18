@@ -77,6 +77,27 @@
       "diesel": null,
       "lpg": 1179,
       "updatedAt": "2026.11.18 12:31"
+    },
+    "13": {
+      "name": "당산주유소",
+      "gasoline": 1815,
+      "diesel": 1795,
+      "lpg": null,
+      "updatedAt": "2026.11.18 12:31"
+    },
+    "14": {
+      "name": "대전중앙주유소",
+      "gasoline": 1815,
+      "diesel": 1805,
+      "lpg": null,
+      "updatedAt": "2026.11.18 12:31"
+    },
+    "15": {
+      "name": "필승주유소",
+      "gasoline": 1807,
+      "diesel": 1793,
+      "lpg": null,
+      "updatedAt": "2026.11.18 12:31"
     }
   }
 }
