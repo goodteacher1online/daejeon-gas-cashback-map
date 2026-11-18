@@ -16,7 +16,6 @@ KST = datetime.timezone(datetime.timedelta(hours=9))
 TARGETS = [
     {"id": 1, "name": "에이스주유소", "url": "https://place.map.kakao.com/1445954313"},
     {"id": 2, "name": "가수원주유소", "url": "https://place.map.kakao.com/1744455883"},
-    {"id": 3, "name": "대동현대주유소", "url": "https://place.map.kakao.com/1439720917"},
     {"id": 4, "name": "방동주유소", "url": "https://place.map.kakao.com/11069446"},
     {"id": 5, "name": "만년교셀프주유소", "url": "https://place.map.kakao.com/10345384"},
     {"id": 6, "name": "구암상사주유소", "url": "https://place.map.kakao.com/8707044"},
@@ -37,7 +36,7 @@ def safe_parse(pat, text):
     return None
 
 async def fetch_prices():
-    print("⚡ 온통대전 9개 주유소 및 3개 충전소의 최신 유가를 수집 중입니다...")
+    print("⚡ 온통대전 8개 주유소 및 3개 충전소의 최신 유가를 수집 중입니다...")
     prices = {}
     now_str = datetime.datetime.now(KST).strftime("%Y.%m.%d %H:%M")
 
