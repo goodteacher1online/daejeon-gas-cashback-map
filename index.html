@@ -180,13 +180,13 @@
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
+      gap: 5px;
+      padding: 5px 10px;
       background: white;
-      border: 2.5px solid #2563eb;
-      border-radius: 24px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.26);
-      font-size: 13.5px;
+      border: 2px solid #2563eb;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+      font-size: 12px;
       font-weight: 800;
       color: #0f172a;
       white-space: nowrap;
@@ -194,9 +194,6 @@
       transform: translate(-50%, -100%);
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       margin-top: -8px;
-    }
-    .custom-station-pin i {
-      font-size: 13px;
     }
     .custom-station-pin:hover {
       transform: translate(-50%, -108%) scale(1.04);
@@ -212,29 +209,26 @@
       font-weight: 900;
     }
     .best-badge {
-      background: #dc2626;
+      background: #ef4444;
       color: white;
-      font-size: 10.5px;
+      font-size: 9px;
       font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 5px;
-      margin-left: 3px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      margin-left: 2px;
     }
 
     .station-name {
       color: #0f172a;
-      font-weight: 800;
-      font-size: 13.5px;
-      letter-spacing: -0.3px;
+      font-weight: 700;
     }
     .price-val {
       color: #2563eb;
-      font-weight: 900;
+      font-weight: 800;
       background: #eff6ff;
-      padding: 2px 8px;
-      border-radius: 14px;
-      font-size: 14px;
-      letter-spacing: -0.3px;
+      padding: 1px 6px;
+      border-radius: 12px;
+      font-size: 11.5px;
     }
     .price-val.diesel-val {
       color: #059669;
@@ -277,115 +271,6 @@
     }
     .custom-station-pin.best-price::before {
       border-top-color: #ef4444;
-    }
-
-    /* 💬 Leaflet 팝업 상단 헤더 가림 방지 및 스타일 최적화 */
-    .leaflet-popup {
-      margin-bottom: 25px !important;
-    }
-    .leaflet-popup-content-wrapper {
-      border-radius: 16px !important;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25) !important;
-      border: 1px solid rgba(226, 232, 240, 0.8) !important;
-    }
-    .leaflet-popup-content {
-      margin: 14px 16px !important;
-      max-height: min(440px, calc(100vh - 160px)) !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    /* 🎨 가격 순위별 차등 테두리 & 그라데이션 스타일 (최저가 딥레드 -> 2위 오렌지레드 -> 3위 앰버) */
-    .custom-station-pin.rank-1 {
-      border: 2.5px solid #dc2626 !important;
-      background: #fef2f2 !important;
-      box-shadow: 0 4px 18px rgba(220, 38, 38, 0.42) !important;
-    }
-    .custom-station-pin.rank-1::before { border-top-color: #dc2626 !important; }
-    .custom-station-pin.rank-1::after { border-top-color: #fef2f2 !important; }
-    .custom-station-pin.rank-1 .price-val {
-      color: #dc2626 !important;
-      background: #fee2e2 !important;
-      font-weight: 900;
-    }
-
-    .custom-station-pin.rank-2 {
-      border: 2px solid #ea580c !important;
-      background: #fff7ed !important;
-      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.32) !important;
-    }
-    .custom-station-pin.rank-2::before { border-top-color: #ea580c !important; }
-    .custom-station-pin.rank-2::after { border-top-color: #fff7ed !important; }
-    .custom-station-pin.rank-2 .price-val {
-      color: #ea580c !important;
-      background: #ffedd5 !important;
-      font-weight: 850;
-    }
-
-    .custom-station-pin.rank-3 {
-      border: 2px solid #d97706 !important;
-      background: #fffbeb !important;
-      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.28) !important;
-    }
-    .custom-station-pin.rank-3::before { border-top-color: #d97706 !important; }
-    .custom-station-pin.rank-3::after { border-top-color: #fffbeb !important; }
-    .custom-station-pin.rank-3 .price-val {
-      color: #d97706 !important;
-      background: #fef3c7 !important;
-      font-weight: 800;
-    }
-
-    .rank-badge {
-      font-size: 10.5px;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 5px;
-      margin-left: 3px;
-      color: white;
-    }
-    .rank-2-badge { background: #ea580c; }
-    .rank-3-badge { background: #d97706; }
-
-    /* 🔍 줌 레벨 연동 핀 모드: 폰트는 13px / 13.5px로 큼직하고 시원하게 유지하면서 긴 부가 뱃지만 숨김 */
-    #map.zoom-compact .custom-station-pin {
-      padding: 5px 10px;
-      gap: 5px;
-      border-radius: 20px;
-    }
-    #map.zoom-compact .custom-station-pin .pin-verify-badge,
-    #map.zoom-compact .custom-station-pin .pin-loc-warn-badge,
-    #map.zoom-compact .custom-station-pin .status-pin-dot {
-      display: none !important;
-    }
-    #map.zoom-compact .custom-station-pin .station-name {
-      display: inline-block !important;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-    }
-    #map.zoom-compact .custom-station-pin .price-val {
-      font-size: 13.5px;
-      font-weight: 900;
-      padding: 2px 7px;
-    }
-    #map.zoom-compact .custom-station-pin .best-badge,
-    #map.zoom-compact .custom-station-pin .rank-badge {
-      font-size: 10px;
-      padding: 1.5px 5px;
-      margin-left: 2px;
-    }
-
-    /* 콤팩트 모드에서 호버 시 즉시 전체 이름 스르륵 펼침 (스마트 인터랙션) */
-    #map.zoom-compact .custom-station-pin:hover {
-      padding: 5px 10px;
-      gap: 5px;
-      font-size: 12px;
-      z-index: 99999 !important;
-      transform: translate(-50%, -108%) scale(1.06);
-    }
-    #map.zoom-compact .custom-station-pin:hover .pin-verify-badge,
-    #map.zoom-compact .custom-station-pin:hover .status-pin-dot {
-      display: inline-flex !important;
     }
 
     /* 브랜드별 테두리 및 침 색상 */
@@ -2719,20 +2604,6 @@
       maxZoom: 20
     }).addTo(map);
 
-    // 🔍 줌 레벨 연동: 축소 시 콤팩트 알약 모드로 이름 겹침 방지
-    function updateZoomMode() {
-      const mapEl = document.getElementById('map');
-      if (mapEl && map) {
-        if (map.getZoom() <= 13) {
-          mapEl.classList.add('zoom-compact');
-        } else {
-          mapEl.classList.remove('zoom-compact');
-        }
-      }
-    }
-    map.on('zoomend', updateZoomMode);
-    updateZoomMode();
-
     renderMarkers();
     renderList();
   }
@@ -2876,12 +2747,7 @@
             </div>
           </div>
         `;
-        m.bindPopup(popupHtml, {
-          autoPan: true,
-          autoPanPaddingTopLeft: L.point(15, 85), // 상단 필터 바 뒤로 가려짐 방지 여백
-          autoPanPaddingBottomRight: L.point(15, 60),
-          closeButton: true
-        });
+        m.bindPopup(popupHtml);
         markers.push(m);
       });
       return;
@@ -2890,14 +2756,12 @@
     // 2. 일반 유종 탭일 때: 기존 주유소 + 승격된 가맹점 렌더링
     const list = getFilteredStations();
 
-    // 현재 선택된 유종 기준 유효 가격 추출 및 고유 가격 오름차순 정렬 (순위 계산)
-    const validPrices = Array.from(new Set(
-      list.map(s => getStationPrice(s)).filter(p => typeof p === 'number' && p > 0)
-    )).sort((a, b) => a - b);
-
-    const minPrice = validPrices.length > 0 ? validPrices[0] : null;
-    const secondPrice = validPrices.length > 1 ? validPrices[1] : null;
-    const thirdPrice = validPrices.length > 2 ? validPrices[2] : null;
+    // 현재 선택된 유종 기준 최저가 계산
+    let minPrice = 99999;
+    list.forEach(s => {
+      const p = getStationPrice(s);
+      if (p && p < minPrice) minPrice = p;
+    });
 
     list.forEach(st => {
       const isLpg = st.type === 'lpg';
@@ -2908,32 +2772,9 @@
       else if (st.brand.includes('알뜰')) brandClass = 'brand-alttul';
 
       const price = getStationPrice(st);
+      const isBest = price && price === minPrice;
       const v = getVerificationSummary(st.id);
       const loc = getLocSummary(st.id);
-
-      // 🏆 가격 순위별 클래스, 뱃지, z-index 우선순위 계산
-      let rankClass = 'rank-normal';
-      let rankBadge = '';
-      let zOffset = 100;
-
-      if (price && validPrices.length > 0) {
-        if (price === minPrice) {
-          rankClass = 'rank-1 best-price';
-          rankBadge = '<span class="best-badge">최저가</span>';
-          zOffset = 1000; // 최저가 마커는 다른 마커보다 항상 최우선 맨 위 노출!
-        } else if (price === secondPrice) {
-          rankClass = 'rank-2';
-          rankBadge = '<span class="rank-badge rank-2-badge">2위</span>';
-          zOffset = 800;
-        } else if (price === thirdPrice) {
-          rankClass = 'rank-3';
-          rankBadge = '<span class="rank-badge rank-3-badge">3위</span>';
-          zOffset = 600;
-        } else {
-          const pIdx = validPrices.indexOf(price);
-          zOffset = Math.max(100, 500 - (pIdx * 30));
-        }
-      }
 
       let priceClass = '';
       if (currentFuel === 'diesel') priceClass = 'diesel-val';
@@ -2948,16 +2789,16 @@
       // 위치 오류 제보가 있을 때 핀에 주의 표시
       const locWarnPin = loc.locWrong > 0 ? `<span class="pin-loc-warn-badge" title="위치 오류 제보 ${loc.locWrong}건">⚠️위치</span>` : '';
 
-      // 마커 HTML: 순위별 차등 테두리 및 최우선 z-index가 반영된 마커 핀
+      // 마커 HTML: 주유소 이름 + 유가 + 시민 검증 뱃지 + 위치 주의 뱃지
       const markerHtml = `
-        <div class="custom-station-pin ${brandClass} ${rankClass} ${isLpg ? 'marker-lpg' : ''}">
+        <div class="custom-station-pin ${brandClass} ${isLpg ? 'marker-lpg' : ''} ${isBest ? 'best-price' : ''}">
           <span class="status-pin-dot status-${v.status}" title="${v.statusText}"></span>
           <i class="fa-solid fa-${isLpg ? 'fire-flame-simple' : 'gas-pump'}"></i>
           <span class="station-name">${st.name}</span>
           <span class="price-val ${priceClass}">${price ? price.toLocaleString() + '원' : '-'}</span>
           ${verifyPinBadge}
           ${locWarnPin}
-          ${rankBadge}
+          ${isBest ? '<span class="best-badge">최저가</span>' : ''}
           <div class="anchor-dot"></div>
         </div>
       `;
@@ -2969,10 +2810,7 @@
         iconAnchor: [0, 0] // 뾰족한 침 끝점이 지도 좌표에 정확히 꽂힘
       });
 
-      const m = L.marker([st.lat, st.lng], { 
-        icon: customIcon,
-        zIndexOffset: zOffset // 싼 곳일수록 높은 z-index로 겹침 시 상단에 선명하게 노출!
-      }).addTo(map);
+      const m = L.marker([st.lat, st.lng], { icon: customIcon }).addTo(map);
 
       // Popup Content
       const popupHtml = `
@@ -3045,12 +2883,7 @@
           </div>
         </div>
       `;
-      m.bindPopup(popupHtml, {
-        autoPan: true,
-        autoPanPaddingTopLeft: L.point(15, 85), // 상단 필터 바 뒤로 가려짐 방지 여백
-        autoPanPaddingBottomRight: L.point(15, 60),
-        closeButton: true
-      });
+      m.bindPopup(popupHtml);
       m.on('click', () => {
         highlightCard(st.id);
       });
@@ -3085,7 +2918,7 @@
         card.className = 'station-card';
         card.id = `cand-card-${c.id}`;
         card.onclick = () => {
-          map.setView([c.lat + 0.0038, c.lng], 15);
+          map.setView([c.lat, c.lng], 15);
           markers.forEach(m => {
             const pos = m.getLatLng();
             if (Math.abs(pos.lat - c.lat) < 0.0001 && Math.abs(pos.lng - c.lng) < 0.0001) {
@@ -3204,7 +3037,7 @@
             <div class="card-main-title">
               ${st.name}
               <span class="brand-pill" style="background:${st.brandColor};">${st.brandShort}</span>
-              ${idx === 0 && currentSort === 'price' ? '<span class="best-badge" style="font-size:10px; padding:2px 6px;">최저가</span>' : (idx === 1 && currentSort === 'price' ? '<span class="rank-badge rank-2-badge" style="font-size:10px; padding:2px 6px;">2위</span>' : (idx === 2 && currentSort === 'price' ? '<span class="rank-badge rank-3-badge" style="font-size:10px; padding:2px 6px;">3위</span>' : ''))}
+              ${idx === 0 && currentSort === 'price' ? '<span class="best-badge" style="font-size:10px; padding:2px 6px;">최저가</span>' : ''}
               ${loc.locWrong > 0 ? `<span style="font-size:10px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:2px 6px; border-radius:4px; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> 위치제보 ${loc.locWrong}</span>` : ''}
             </div>
             <div class="card-sub-info">
@@ -3287,8 +3120,7 @@
   }
 
   function focusStation(st) {
-    // 팝업이 상단 헤더에 가려지지 않도록 중심점을 북쪽으로 살짝 오프셋하여 화면 중앙에 팝업이 편안히 안착하도록 함
-    map.setView([st.lat + 0.0038, st.lng], 15);
+    map.setView([st.lat, st.lng], 15);
     markers.forEach(m => {
       const pos = m.getLatLng();
       if (Math.abs(pos.lat - st.lat) < 0.0001 && Math.abs(pos.lng - st.lng) < 0.0001) {
