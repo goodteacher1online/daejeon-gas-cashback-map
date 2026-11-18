@@ -185,12 +185,12 @@
       align-items: center;
       gap: 5px;
       padding: 5px 10px;
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
+      background: rgba(255, 255, 255, 0.42);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       border: 2px solid #2563eb;
       border-radius: 20px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
       font-size: 12px;
       font-weight: 800;
       color: #0f172a;
@@ -203,15 +203,15 @@
     .custom-station-pin:hover {
       transform: translate(-50%, -108%) scale(1.04);
       z-index: 9999 !important;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+      background: rgba(255, 255, 255, 0.85);
     }
     .custom-station-pin.best-price {
-      background: rgba(254, 242, 242, 0.75);
+      background: rgba(254, 242, 242, 0.48);
       border-color: #ef4444;
     }
     .custom-station-pin.best-price:hover {
-      background: rgba(254, 242, 242, 0.95);
+      background: rgba(254, 242, 242, 0.88);
     }
     .custom-station-pin.best-price .price-val {
       color: #dc2626;
@@ -234,18 +234,18 @@
     .price-val {
       color: #2563eb;
       font-weight: 800;
-      background: rgba(239, 246, 255, 0.55);
+      background: rgba(239, 246, 255, 0.35);
       padding: 1px 6px;
       border-radius: 12px;
       font-size: 11.5px;
     }
     .price-val.diesel-val {
       color: #059669;
-      background: rgba(236, 253, 245, 0.55);
+      background: rgba(236, 253, 245, 0.35);
     }
     .price-val.lpg-val {
       color: #d97706;
-      background: rgba(255, 251, 235, 0.55);
+      background: rgba(255, 251, 235, 0.35);
     }
 
     /* 아래로 뾰족한 삼각형 화살표 침 (Arrow Pointer) - 가로줄 없이 본체와 매끄럽게 연결 */
@@ -275,11 +275,11 @@
       height: 0;
       border-left: 6.5px solid transparent;
       border-right: 6.5px solid transparent;
-      border-top: 7.5px solid rgba(255, 255, 255, 0.82);
+      border-top: 7.5px solid rgba(255, 255, 255, 0.55);
       z-index: 3;
     }
     .custom-station-pin.best-price::after {
-      border-top-color: rgba(254, 242, 242, 0.85);
+      border-top-color: rgba(254, 242, 242, 0.6);
     }
 
     /* 브랜드별 테두리 및 침 색상 */
@@ -303,9 +303,9 @@
     .custom-station-pin.brand-gs:not(.best-price)::before { border-top-color: #007a87; }
     .custom-station-pin.brand-gs i { color: #007a87; }
 
-    .custom-station-pin.marker-lpg { border-color: #d97706; background: rgba(255, 251, 235, 0.75); }
-    .custom-station-pin.marker-lpg:hover { background: rgba(255, 251, 235, 0.95); }
-    .custom-station-pin.marker-lpg::after { border-top-color: rgba(255, 251, 235, 0.85); }
+    .custom-station-pin.marker-lpg { border-color: #d97706; background: rgba(255, 251, 235, 0.48); }
+    .custom-station-pin.marker-lpg:hover { background: rgba(255, 251, 235, 0.88); }
+    .custom-station-pin.marker-lpg::after { border-top-color: rgba(255, 251, 235, 0.6); }
     .custom-station-pin.marker-lpg:not(.best-price)::before { border-top-color: #d97706; }
     .custom-station-pin.marker-lpg i { color: #d97706; }
 
