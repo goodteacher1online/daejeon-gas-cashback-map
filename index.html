@@ -1090,7 +1090,7 @@
       color: #ffffff !important;
     }
 
-    /* 가격 순위 동그라미 뱃지 (Circle Rank Badge) */
+    /* 가격 순위 동그라미 뱃지 (Circle Rank Badge - 정확한 정원 유지) */
     .rank-circle {
       display: inline-flex;
       align-items: center;
@@ -1098,8 +1098,13 @@
       width: 20px;
       height: 20px;
       min-width: 20px;
+      min-height: 20px;
+      max-width: 20px;
+      max-height: 20px;
+      aspect-ratio: 1 / 1;
+      box-sizing: border-box;
       border-radius: 50%;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 900;
       line-height: 1;
       text-align: center;
@@ -1108,6 +1113,17 @@
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
       vertical-align: middle;
       margin-left: 2px;
+      padding: 0;
+    }
+    .rank-circle.list-badge {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      min-height: 18px;
+      max-width: 18px;
+      max-height: 18px;
+      font-size: 10px;
+      margin-left: 4px;
     }
     /* 1위 (최저가) - 강렬한 레드 원형 */
     .rank-circle.rank-1 {
@@ -3040,7 +3056,6 @@
       // 마커 HTML: 주유소 이름 + 유가 + 최저가(있을시) + 순위 동그라미 + 위치 주의 뱃지
       const markerHtml = `
         <div class="custom-station-pin ${brandClass} ${isLpg ? 'marker-lpg' : ''} ${isBest ? 'best-price' : ''}">
-          <span class="status-pin-dot status-${v.status}" title="${v.statusText}"></span>
           <i class="fa-solid fa-${isLpg ? 'fire-flame-simple' : 'gas-pump'}"></i>
           <span class="station-name">${st.name}</span>
           <span class="price-val ${priceClass}">${price ? price.toLocaleString() + '원' : '-'}</span>
@@ -3302,7 +3317,7 @@
         if (rank === 1) rankClass = 'rank-1';
         else if (rank === 2) rankClass = 'rank-2';
         else if (rank === 3) rankClass = 'rank-3';
-        listRankBadge = `<span class="rank-circle ${rankClass}" style="width:17px; height:17px; font-size:10px; margin-left:3px;" title="대전 가격 ${rank}위">${rank}</span>`;
+        listRankBadge = `<span class="rank-circle ${rankClass} list-badge" title="대전 가격 ${rank}위">${rank}</span>`;
       }
 
       card.innerHTML = `
@@ -3381,6 +3396,13 @@
   }
 
   function sortStations(mode) {
+    if (mode === 'dist' && !myLocation) {
+      const wantGps = confirm("📍 내 주변 가까운 주유소를 거리순으로 보려면 위치(GPS) 설정이 필요합니다.\n\n지금 내 위치를 찾으시겠습니까?");
+      if (wantGps) {
+        findMyLocation();
+      }
+      return;
+    }
     currentSort = mode;
     document.getElementById('sortPrice').classList.toggle('active', mode === 'price');
     document.getElementById('sortDist').classList.toggle('active', mode === 'dist');
