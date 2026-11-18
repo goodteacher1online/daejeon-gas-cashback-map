@@ -2972,6 +2972,19 @@
           </div>
         `;
         m.bindPopup(popupHtml);
+        m.on('click', () => {
+          if (!isSheetCollapsed) {
+            toggleBottomSheet(true);
+          }
+        });
+        m.on('popupopen', () => {
+          activePopupStation = c;
+        });
+        m.on('popupclose', () => {
+          if (isSheetCollapsed) {
+            activePopupStation = null;
+          }
+        });
         markers.push(m);
       });
       return;
@@ -3121,7 +3134,18 @@
       `;
       m.bindPopup(popupHtml);
       m.on('click', () => {
+        if (!isSheetCollapsed) {
+          toggleBottomSheet(true);
+        }
         highlightCard(st.id);
+      });
+      m.on('popupopen', () => {
+        activePopupStation = st;
+      });
+      m.on('popupclose', () => {
+        if (isSheetCollapsed) {
+          activePopupStation = null;
+        }
       });
       markers.push(m);
     });
@@ -3154,6 +3178,10 @@
         card.className = 'station-card';
         card.id = `cand-card-${c.id}`;
         card.onclick = () => {
+          activePopupStation = c;
+          if (!isSheetCollapsed) {
+            toggleBottomSheet(true);
+          }
           map.setView([c.lat, c.lng], 15);
           markers.forEach(m => {
             const pos = m.getLatLng();
@@ -3321,6 +3349,11 @@
   }
 
   function focusStation(st) {
+    activePopupStation = st;
+    // 하단바가 올라와 있으면 접어서 지도와 상세 정보가 시원하게 나오도록 처리
+    if (!isSheetCollapsed) {
+      toggleBottomSheet(true);
+    }
     map.setView([st.lat, st.lng], 15);
     markers.forEach(m => {
       const pos = m.getLatLng();
@@ -3404,6 +3437,7 @@
 
   // Bottom Sheet Toggle & Gestures (초기 상태: 지도를 가리지 않도록 닫힘 상태 유지)
   let isSheetCollapsed = true;
+  let activePopupStation = null; // 활성화되었던 상세 주유소 정보
 
   function toggleBottomSheet(forceState = null) {
     if (forceState !== null) {
@@ -3416,11 +3450,26 @@
     const fabContainer = document.getElementById('fabContainer');
 
     if (isSheetCollapsed) {
+      // ✅ 하단바가 내려갔을 때: 상세 주유소 정보(팝업)가 지도에 다시 나타남
       sheet.classList.add('collapsed');
       if (fabContainer) fabContainer.classList.add('sheet-collapsed');
+
+      if (activePopupStation && map) {
+        markers.forEach(m => {
+          const pos = m.getLatLng();
+          if (Math.abs(pos.lat - activePopupStation.lat) < 0.0001 && Math.abs(pos.lng - activePopupStation.lng) < 0.0001) {
+            m.openPopup();
+          }
+        });
+      }
     } else {
+      // 🚫 하단바가 올라왔을 때: 상세 주유소 정보(팝업)가 깔끔하게 사라짐
       sheet.classList.remove('collapsed');
       if (fabContainer) fabContainer.classList.remove('sheet-collapsed');
+
+      if (map) {
+        map.closePopup();
+      }
     }
   }
 
