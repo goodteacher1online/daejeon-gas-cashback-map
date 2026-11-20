@@ -1789,8 +1789,106 @@
     12: { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" }
   };
 
-  // 🔍 시민 발굴 '살펴볼 곳' 후보 주유소 목록 (Firestore 실시간 동기화)
+  // 🔍 시민 발굴 '살펴볼 곳' 후보 주유소 목록 (Firestore 1회 조회 + 로컬 캐시)
   let candidateStations = [];
+  const FS_CACHE_KEY = 'daejeon_gas_fs_cache_v1';
+  const FS_CACHE_TTL_MS = 5 * 60 * 1000;
+  const MAX_CANDIDATES_LOAD = 50;
+
+  function serializeCandidate(id, data) {
+    return {
+      id: id,
+      name: data.name || '',
+      addr: data.addr || '',
+      brand: data.brand || '',
+      type: data.type || 'oil',
+      lat: typeof data.lat === 'number' ? data.lat : Number(data.lat) || 0,
+      lng: typeof data.lng === 'number' ? data.lng : Number(data.lng) || 0,
+      phone: data.phone || '',
+      reason: data.reason || '',
+      votesYes: typeof data.votesYes === 'number' ? data.votesYes : 0,
+      votesNo: typeof data.votesNo === 'number' ? data.votesNo : 0,
+      status: data.status || 'candidate'
+    };
+  }
+
+  function saveFirestoreCache() {
+    try {
+      localStorage.setItem(FS_CACHE_KEY, JSON.stringify({
+        ts: Date.now(),
+        verifications: verificationData,
+        candidates: candidateStations
+      }));
+    } catch (e) {}
+  }
+
+  function loadFirestoreCache() {
+    try {
+      const raw = localStorage.getItem(FS_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed.ts !== 'number') return null;
+      if (Date.now() - parsed.ts > FS_CACHE_TTL_MS) return null;
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function rerenderMapAndList() {
+    if (map) {
+      renderMarkers();
+      renderList();
+    }
+  }
+
+  function fetchFirestoreData() {
+    Promise.allSettled([
+      db.collection("daejeon_gas_verifications").limit(50).get(),
+      db.collection("daejeon_gas_candidates").limit(MAX_CANDIDATES_LOAD).get()
+    ]).then(([verRes, candRes]) => {
+      let updated = false;
+
+      if (verRes.status === 'fulfilled') {
+        STATIONS.forEach(s => {
+          verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+        });
+        verRes.value.forEach(doc => {
+          const id = Number(doc.id);
+          const d = doc.data();
+          if (verificationData[id]) {
+            verificationData[id] = {
+              oper: d.oper || 0,
+              inoper: d.inoper || 0,
+              lastTime: d.lastTime || "",
+              locOk: d.locOk || 0,
+              locWrong: d.locWrong || 0,
+              lastLocTime: d.lastLocTime || ""
+            };
+          }
+        });
+        updated = true;
+      } else {
+        console.warn("Firestore verifications fetch error:", verRes.reason);
+      }
+
+      if (candRes.status === 'fulfilled') {
+        candidateStations = [];
+        candRes.value.forEach(doc => {
+          candidateStations.push(serializeCandidate(doc.id, doc.data()));
+        });
+        updated = true;
+      } else {
+        console.warn("Firestore candidates fetch error:", candRes.reason);
+      }
+
+      if (updated) {
+        saveFirestoreCache();
+        updateCandidateBadge();
+        rerenderMapAndList();
+      }
+    });
+  }
 
   function updateCandidateBadge() {
     const count = candidateStations.length;
@@ -1813,18 +1911,20 @@
   }
 
   function initVerification() {
-    // 🧹 과거 테스트 가짜 데이터 로컬스토리지 강제 영구 삭제
+    // 🧹 과거 테스트 가짜 데이터 로컬스토리지 1회성 마이그레이션 정리 (이후 투표 기록 보존)
     try {
-      localStorage.removeItem('daejeon_gas_verifications');
-      // 구버전 임시 투표 키들도 함께 초기화
-      Object.keys(localStorage).forEach(k => {
-        if (k.startsWith('vote_st_') || k.startsWith('my_vote_')) {
-          localStorage.removeItem(k);
-        }
-      });
+      if (!localStorage.getItem('daejeon_gas_migrated_v2')) {
+        localStorage.removeItem('daejeon_gas_verifications');
+        Object.keys(localStorage).forEach(k => {
+          if (k.startsWith('vote_st_') || k.startsWith('my_vote_')) {
+            localStorage.removeItem(k);
+          }
+        });
+        localStorage.setItem('daejeon_gas_migrated_v2', '1');
+      }
     } catch (e) {}
 
-    // 0건으로 완전 리셋
+    // 0건으로 기본 초기화
     STATIONS.forEach(s => {
       verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
     });
@@ -1834,46 +1934,32 @@
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
         isFirebaseReady = true;
-        console.log("🔥 Firebase Firestore 실시간 연동 성공!");
+        console.log("🔥 Firebase Firestore 연동 성공 (1회 조회 + 캐시 모드)!");
 
-        // Firestore 실시간 리스너 (Firestore에 저장된 '진짜 시민 데이터'만 표시)
-        db.collection("daejeon_gas_verifications").onSnapshot(snapshot => {
-          // 깨끗하게 0으로 초기화 후 Firestore 실제 데이터만 매핑
-          STATIONS.forEach(s => {
-            verificationData[s.id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
-          });
-          snapshot.forEach(doc => {
-            const id = Number(doc.id);
-            const d = doc.data();
-            if (verificationData[id]) {
-              verificationData[id] = {
-                oper: d.oper || 0,
-                inoper: d.inoper || 0,
-                lastTime: d.lastTime || "",
-                locOk: d.locOk || 0,
-                locWrong: d.locWrong || 0,
-                lastLocTime: d.lastLocTime || ""
-              };
-            }
-          });
-          renderMarkers();
-          renderList();
-        }, err => {
-          console.warn("Firestore listener error:", err);
-        });
-
-        // 2. 🔍 시민 신규 제보 '살펴볼 곳' 실시간 리스너
-        db.collection("daejeon_gas_candidates").onSnapshot(snapshot => {
-          candidateStations = [];
-          snapshot.forEach(doc => {
-            candidateStations.push({ id: doc.id, ...doc.data() });
-          });
+        const cached = loadFirestoreCache();
+        if (cached) {
+          if (cached.verifications) {
+            STATIONS.forEach(s => {
+              const cv = cached.verifications[s.id];
+              if (cv) {
+                verificationData[s.id] = {
+                  oper: cv.oper || 0,
+                  inoper: cv.inoper || 0,
+                  lastTime: cv.lastTime || "",
+                  locOk: cv.locOk || 0,
+                  locWrong: cv.locWrong || 0,
+                  lastLocTime: cv.lastLocTime || ""
+                };
+              }
+            });
+          }
+          candidateStations = Array.isArray(cached.candidates) ? cached.candidates : [];
           updateCandidateBadge();
-          renderMarkers();
-          renderList();
-        }, err => {
-          console.warn("Candidates listener error:", err);
-        });
+          rerenderMapAndList();
+          console.log("⚡ Firestore 캐시 데이터 사용 (5분 TTL)");
+        } else {
+          fetchFirestoreData();
+        }
       } catch (err) {
         console.warn("Firebase init fallback to local:", err);
       }
@@ -1935,8 +2021,13 @@
 
         db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
           .then(() => {
+            if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+            if (type === 'oper' && verificationData[id].oper > 0) verificationData[id].oper--;
+            if (type === 'inoper' && verificationData[id].inoper > 0) verificationData[id].inoper--;
             localStorage.removeItem(voteKey);
             localStorage.removeItem(`my_vote_${id}`);
+            saveFirestoreCache();
+            rerenderMapAndList();
             showToast("↩️ 현장 검증 제보가 취소되었습니다.");
           })
           .catch(err => {
@@ -1977,8 +2068,19 @@
 
         db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
           .then(() => {
+            if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+            if (type === 'oper') {
+              verificationData[id].oper++;
+              if (verificationData[id].inoper > 0) verificationData[id].inoper--;
+            } else {
+              verificationData[id].inoper++;
+              if (verificationData[id].oper > 0) verificationData[id].oper--;
+            }
+            verificationData[id].lastTime = nowTime;
             localStorage.setItem(voteKey, type);
             localStorage.setItem(`my_vote_${id}`, type);
+            saveFirestoreCache();
+            rerenderMapAndList();
             showToast(type === 'oper' ? "🔄 '캐시백 성공'으로 제보가 변경되었습니다!" : "🔄 '캐시백 불가'로 제보가 변경되었습니다!");
           })
           .catch(err => {
@@ -2018,8 +2120,14 @@
 
       db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
         .then(() => {
+          if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+          if (type === 'oper') verificationData[id].oper++;
+          else verificationData[id].inoper++;
+          verificationData[id].lastTime = nowTime;
           localStorage.setItem(voteKey, type);
           localStorage.setItem(`my_vote_${id}`, type);
+          saveFirestoreCache();
+          rerenderMapAndList();
           showToast(type === 'oper' ? "🟢 '캐시백 성공' 제보가 실시간 반영되었습니다! (다시 누르면 취소)" : "🔴 '캐시백 불가' 제보가 실시간 반영되었습니다! (다시 누르면 취소)");
         })
         .catch(err => {
@@ -2108,8 +2216,13 @@
 
         db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
           .then(() => {
+            if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+            if (type === 'locOk' && verificationData[id].locOk > 0) verificationData[id].locOk--;
+            if (type === 'locWrong' && verificationData[id].locWrong > 0) verificationData[id].locWrong--;
             localStorage.removeItem(voteKey);
             localStorage.removeItem(`my_loc_vote_${id}`);
+            saveFirestoreCache();
+            rerenderMapAndList();
             showToast("↩️ 위치 정확도 제보가 취소되었습니다.");
           })
           .catch(err => {
@@ -2148,8 +2261,19 @@
 
         db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
           .then(() => {
+            if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+            if (type === 'locOk') {
+              verificationData[id].locOk++;
+              if (verificationData[id].locWrong > 0) verificationData[id].locWrong--;
+            } else {
+              verificationData[id].locWrong++;
+              if (verificationData[id].locOk > 0) verificationData[id].locOk--;
+            }
+            verificationData[id].lastLocTime = nowTime;
             localStorage.setItem(voteKey, type);
             localStorage.setItem(`my_loc_vote_${id}`, type);
+            saveFirestoreCache();
+            rerenderMapAndList();
             showToast(type === 'locOk' ? "🔄 '위치 맞음'으로 제보가 변경되었습니다!" : "🔄 '위치 다름'으로 제보가 변경되었습니다!");
             if (type === 'locWrong') {
               setTimeout(() => openLocationReportModal(id), 500);
@@ -2193,8 +2317,14 @@
 
       db.collection("daejeon_gas_verifications").doc(String(id)).set(updateData, { merge: true })
         .then(() => {
+          if (!verificationData[id]) verificationData[id] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+          if (type === 'locOk') verificationData[id].locOk++;
+          else verificationData[id].locWrong++;
+          verificationData[id].lastLocTime = nowTime;
           localStorage.setItem(voteKey, type);
           localStorage.setItem(`my_loc_vote_${id}`, type);
+          saveFirestoreCache();
+          rerenderMapAndList();
           showToast(type === 'locOk' ? "📍 '위치 맞음' 제보가 실시간 반영되었습니다!" : "⚠️ '위치 다름' 제보가 실시간 반영되었습니다!");
           if (type === 'locWrong') {
             setTimeout(() => openLocationReportModal(id), 500);
@@ -2317,26 +2447,33 @@
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 전송중...';
 
     if (isFirebaseReady && db) {
+      const reportStationId = activeReportingStationId;
       const nowTime = "오늘 " + (new Date()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
       const inc = firebase.firestore.FieldValue.increment(1);
 
       db.collection("daejeon_gas_location_reports").add({
-        stationId: activeReportingStationId,
+        stationId: reportStationId,
         stationName: st ? st.name : '',
         note: note,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         // 위치 상이 통계도 함께 누적
         const today = new Date().toISOString().slice(0, 10);
-        const voteKey = `loc_vote_st_${activeReportingStationId}_${today}`;
+        const voteKey = `loc_vote_st_${reportStationId}_${today}`;
         const currentVote = localStorage.getItem(voteKey);
 
         if (currentVote !== 'locWrong') {
-          db.collection("daejeon_gas_verifications").doc(String(activeReportingStationId)).set({
+          db.collection("daejeon_gas_verifications").doc(String(reportStationId)).set({
             locWrong: inc,
             lastLocTime: nowTime,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true }).catch(() => {});
+          }, { merge: true }).then(() => {
+            if (!verificationData[reportStationId]) verificationData[reportStationId] = { oper: 0, inoper: 0, lastTime: "", locOk: 0, locWrong: 0, lastLocTime: "" };
+            verificationData[reportStationId].locWrong++;
+            verificationData[reportStationId].lastLocTime = nowTime;
+            saveFirestoreCache();
+            rerenderMapAndList();
+          }).catch(() => {});
           localStorage.setItem(voteKey, 'locWrong');
         }
 
@@ -2624,6 +2761,10 @@
         .then((docRef) => {
           const today = new Date().toISOString().slice(0, 10);
           localStorage.setItem(`cand_vote_${docRef.id}_${today}`, 'yes');
+          candidateStations.push(serializeCandidate(docRef.id, candData));
+          saveFirestoreCache();
+          updateCandidateBadge();
+          rerenderMapAndList();
 
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-plus"></i> 살펴볼 곳 등록';
@@ -2698,7 +2839,11 @@
 
         db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
           .then(() => {
+            cand.votesYes = newYes;
+            cand.votesNo = newNo;
             localStorage.removeItem(voteKey);
+            saveFirestoreCache();
+            rerenderMapAndList();
             renderCandidateListInModal();
             showToast("↩️ 확인 투표가 취소되었습니다.");
           })
@@ -2746,7 +2891,12 @@
 
         db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
           .then(() => {
+            cand.votesYes = newYes;
+            cand.votesNo = newNo;
+            if (willApprove) cand.status = 'approved';
             localStorage.setItem(voteKey, type);
+            saveFirestoreCache();
+            rerenderMapAndList();
             renderCandidateListInModal();
             if (willApprove) {
               showToast("🎉 축하합니다! 시민 3인 검증 완료로 정식 가맹점으로 자동 등록되었습니다!");
@@ -2789,7 +2939,12 @@
 
       db.collection("daejeon_gas_candidates").doc(candId).update(updateData)
         .then(() => {
+          cand.votesYes = newYes;
+          cand.votesNo = newNo;
+          if (willApprove) cand.status = 'approved';
           localStorage.setItem(voteKey, type);
+          saveFirestoreCache();
+          rerenderMapAndList();
           renderCandidateListInModal();
           if (willApprove) {
             showToast("🎉 축하합니다! 시민 3인 확인 완료! 정식 가맹점으로 자동 등록되었습니다!");
