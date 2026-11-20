@@ -1,103 +1,103 @@
 {
-  "updatedAt": "2026.11.20 01:18",
+  "updatedAt": "2026.11.20 11:55",
   "prices": {
     "1": {
       "name": "에이스주유소",
       "gasoline": null,
       "diesel": null,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "2": {
       "name": "가수원주유소",
-      "gasoline": 2348,
-      "diesel": null,
+      "gasoline": 1828,
+      "diesel": 1808,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "4": {
       "name": "방동주유소",
       "gasoline": 1844,
       "diesel": 1819,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "5": {
       "name": "만년교셀프주유소",
       "gasoline": 1894,
       "diesel": 1884,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "6": {
       "name": "구암상사주유소",
       "gasoline": 1899,
       "diesel": 1873,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "10": {
       "name": "상서현대주유소",
       "gasoline": 1809,
       "diesel": 1795,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "11": {
       "name": "대도주유소",
       "gasoline": 1865,
       "diesel": 1835,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "12": {
       "name": "동아주유소",
       "gasoline": 1819,
       "diesel": 1809,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "13": {
       "name": "당산주유소",
       "gasoline": 1815,
       "diesel": 1795,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "14": {
       "name": "대전중앙주유소",
       "gasoline": 1815,
       "diesel": 1805,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "15": {
       "name": "필승주유소",
       "gasoline": 1803,
-      "diesel": null,
+      "diesel": 1793,
       "lpg": null,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "7": {
       "name": "회덕IC충전소",
       "gasoline": null,
       "diesel": null,
       "lpg": 1124,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "8": {
       "name": "유한가스충전소",
       "gasoline": null,
       "diesel": null,
       "lpg": 1115,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     },
     "9": {
       "name": "황제충전소",
       "gasoline": null,
       "diesel": null,
       "lpg": 1179,
-      "updatedAt": "2026.11.20 01:18"
+      "updatedAt": "2026.11.20 11:55"
     }
   }
 }
