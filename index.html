@@ -510,28 +510,35 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 4px;
       flex-shrink: 0;
-      width: 26px;
-      height: 26px;
-      padding: 0;
-      border: 1px solid #e2e8f0;
+      padding: 3px 8px;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      background: #f8fafc;
-      font-size: 13px;
-      line-height: 1;
+      background: #ffffff;
+      color: #334155;
+      font-size: 11.5px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+    }
+    .addr-copy-btn i {
+      font-size: 12px;
     }
     .addr-copy-btn:hover {
       background: #eff6ff;
       border-color: #93c5fd;
+      color: #1d4ed8;
     }
     .addr-copy-btn:active {
-      transform: scale(0.92);
+      transform: scale(0.95);
     }
     .addr-copy-btn.copied {
       background: #ecfdf5;
       border-color: #6ee7b7;
+      color: #059669;
     }
     .card-addr {
       display: flex;
@@ -2588,14 +2595,14 @@
     if (!addr) return;
 
     const onSuccess = () => {
-      btn.textContent = '✅';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i><span>완료</span>';
       btn.classList.add('copied');
       clearTimeout(btn._copyTimer);
       btn._copyTimer = setTimeout(() => {
-        btn.textContent = '📋';
+        btn.innerHTML = '<i class="fa-regular fa-copy"></i><span>복사</span>';
         btn.classList.remove('copied');
       }, 1500);
-      showToast('📋 주소가 복사되었습니다!');
+      showToast('주소가 복사되었습니다!');
     };
 
     const fallbackCopy = () => {
@@ -3247,7 +3254,7 @@
             </div>
             <div class="popup-addr-row">
               <span>${escapeHtml(c.addr)}</span>
-              <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(c.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+              <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(c.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사"><i class="fa-regular fa-copy"></i><span>복사</span></button>
             </div>
             <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:8px; padding:6px 10px; font-size:12px; color:#6b21a8; margin-bottom:6px;">
               <i class="fa-solid fa-comment-dots"></i> 제보 사유: <b>${escapeHtml(c.reason || '시민 제보')}</b>
@@ -3386,7 +3393,7 @@
           </div>
           <div class="popup-addr-row">
             <span>${escapeHtml(st.addr)}</span>
-            <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(st.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+            <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(st.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사"><i class="fa-regular fa-copy"></i><span>복사</span></button>
           </div>
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:7px 12px; font-size:12.5px; margin-bottom:6px; display:flex; align-items:center; justify-content:space-around; flex-wrap:wrap; gap:8px;">
             ${st.fuel.gasoline ? `<div>휘발유: <b style="color:#2563eb; font-size:13px;">${st.fuel.gasoline.toLocaleString()}원</b></div>` : ''}
@@ -3534,7 +3541,7 @@
 
           <div class="card-addr">
             <span class="card-addr-text"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${escapeHtml(c.addr)}</span>
-            <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(c.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+            <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(c.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사"><i class="fa-regular fa-copy"></i><span>복사</span></button>
           </div>
 
           <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:6px; padding:6px 10px; font-size:11px; color:#6b21a8; margin:6px 0;">
@@ -3653,7 +3660,7 @@
 
         <div class="card-addr">
           <span class="card-addr-text"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${escapeHtml(st.addr)}</span>
-          <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(st.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+          <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(st.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사"><i class="fa-regular fa-copy"></i><span>복사</span></button>
         </div>
 
 
