@@ -496,9 +496,56 @@
       align-items: center;
       gap: 4px;
     }
+    .popup-addr-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      line-height: 1.4;
+      margin: 2px 0 8px 0;
+    }
+    .addr-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #f8fafc;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .addr-copy-btn:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+    .addr-copy-btn:active {
+      transform: scale(0.92);
+    }
+    .addr-copy-btn.copied {
+      background: #ecfdf5;
+      border-color: #6ee7b7;
+    }
     .card-addr {
-      font-size: 12px;
-      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #334155;
+    }
+    .card-addr-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
     }
     .card-actions-row {
       display: flex;
@@ -1336,7 +1383,7 @@
         font-size: 12.5px;
       }
       .card-addr {
-        font-size: 13px;
+        font-size: 13.5px;
       }
       .btn-realtime-price, .btn-sub-action {
         font-size: 13px;
@@ -2535,6 +2582,47 @@
     }[tag] || tag));
   }
 
+  function copyAddress(btn, e) {
+    if (e) e.stopPropagation();
+    const addr = btn && btn.getAttribute('data-addr');
+    if (!addr) return;
+
+    const onSuccess = () => {
+      btn.textContent = '✅';
+      btn.classList.add('copied');
+      clearTimeout(btn._copyTimer);
+      btn._copyTimer = setTimeout(() => {
+        btn.textContent = '📋';
+        btn.classList.remove('copied');
+      }, 1500);
+      showToast('📋 주소가 복사되었습니다!');
+    };
+
+    const fallbackCopy = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = addr;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) onSuccess();
+        else showToast('복사에 실패했습니다. 주소를 직접 선택해 주세요.');
+      } catch (err) {
+        showToast('복사에 실패했습니다. 주소를 직접 선택해 주세요.');
+      }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(addr).then(onSuccess).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  }
+
   // ==========================================
   // 🔍 신규 발견 주유소 시민 등록 & 확인 투표 자동 승격 시스템
   // ==========================================
@@ -3157,7 +3245,10 @@
                 ${isApproved ? '시민검증 완료' : '살펴볼 곳'}
               </span>
             </div>
-            <p style="font-size:11px; color:#64748b; margin-bottom:6px;">${c.addr}</p>
+            <div class="popup-addr-row">
+              <span>${escapeHtml(c.addr)}</span>
+              <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(c.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+            </div>
             <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:8px; padding:6px 10px; font-size:12px; color:#6b21a8; margin-bottom:6px;">
               <i class="fa-solid fa-comment-dots"></i> 제보 사유: <b>${escapeHtml(c.reason || '시민 제보')}</b>
             </div>
@@ -3293,7 +3384,10 @@
             <h3 style="font-size:14px; font-weight:800; color:#0f172a; margin:0;">${st.name}</h3>
             <span style="font-size:10px; background:${st.brandColor}; color:white; padding:2px 5px; border-radius:4px; font-weight:700;">${st.brandShort}</span>
           </div>
-          <p style="font-size:11px; color:#64748b; margin-bottom:6px;">${st.addr}</p>
+          <div class="popup-addr-row">
+            <span>${escapeHtml(st.addr)}</span>
+            <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(st.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+          </div>
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:7px 12px; font-size:12.5px; margin-bottom:6px; display:flex; align-items:center; justify-content:space-around; flex-wrap:wrap; gap:8px;">
             ${st.fuel.gasoline ? `<div>휘발유: <b style="color:#2563eb; font-size:13px;">${st.fuel.gasoline.toLocaleString()}원</b></div>` : ''}
             ${st.fuel.gasoline && st.fuel.diesel ? `<div style="width:1px; height:12px; background:#cbd5e1;"></div>` : ''}
@@ -3438,7 +3532,10 @@
             </div>
           </div>
 
-          <div class="card-addr"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${c.addr}</div>
+          <div class="card-addr">
+            <span class="card-addr-text"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${escapeHtml(c.addr)}</span>
+            <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(c.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+          </div>
 
           <div style="background:#faf5ff; border:1px solid #f3e8ff; border-radius:6px; padding:6px 10px; font-size:11px; color:#6b21a8; margin:6px 0;">
             <i class="fa-solid fa-comment-dots"></i> 제보 사유: <b>${escapeHtml(c.reason || '온통대전 캐시백 가맹점 제보')}</b>
@@ -3554,7 +3651,10 @@
           </div>
         </div>
 
-        <div class="card-addr"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${st.addr}</div>
+        <div class="card-addr">
+          <span class="card-addr-text"><i class="fa-solid fa-location-dot" style="color:#94a3b8;"></i> ${escapeHtml(st.addr)}</span>
+          <button type="button" class="addr-copy-btn" data-addr="${escapeHtml(st.addr)}" onclick="copyAddress(this, event)" title="주소 복사" aria-label="주소 복사">📋</button>
+        </div>
 
 
 
