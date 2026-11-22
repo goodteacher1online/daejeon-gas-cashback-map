@@ -225,6 +225,21 @@
       margin-left: 2px;
     }
 
+    .pin-brand-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5px 5px;
+      border-radius: 6px;
+      font-size: 9.5px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      background: #475569;
+      flex-shrink: 0;
+    }
+
     .station-name {
       color: #0f172a;
       font-weight: 700;
@@ -284,28 +299,38 @@
     .custom-station-pin.brand-hyundai { border-color: #0066b2; }
     .custom-station-pin.brand-hyundai:not(.best-price)::before { border-top-color: #0066b2; }
     .custom-station-pin.brand-hyundai i { color: #0066b2; }
+    .custom-station-pin.brand-hyundai .pin-brand-badge { background: #0066b2; }
 
     .custom-station-pin.brand-sk { border-color: #ea002c; }
     .custom-station-pin.brand-sk:not(.best-price)::before { border-top-color: #ea002c; }
     .custom-station-pin.brand-sk i { color: #ea002c; }
+    .custom-station-pin.brand-sk .pin-brand-badge { background: #ea002c; }
 
     .custom-station-pin.brand-soil { border-color: #008542; }
     .custom-station-pin.brand-soil:not(.best-price)::before { border-top-color: #008542; }
     .custom-station-pin.brand-soil i { color: #008542; }
+    .custom-station-pin.brand-soil .pin-brand-badge { background: #008542; }
 
     .custom-station-pin.brand-alttul { border-color: #ff7f00; }
     .custom-station-pin.brand-alttul:not(.best-price)::before { border-top-color: #ff7f00; }
     .custom-station-pin.brand-alttul i { color: #ff7f00; }
+    .custom-station-pin.brand-alttul .pin-brand-badge { background: #ea580c; }
 
     .custom-station-pin.brand-gs { border-color: #007a87; }
     .custom-station-pin.brand-gs:not(.best-price)::before { border-top-color: #007a87; }
     .custom-station-pin.brand-gs i { color: #007a87; }
+    .custom-station-pin.brand-gs .pin-brand-badge { background: #007a87; }
+
+    .custom-station-pin.brand-etc { border-color: #475569; }
+    .custom-station-pin.brand-etc:not(.best-price)::before { border-top-color: #475569; }
+    .custom-station-pin.brand-etc .pin-brand-badge { background: #475569; }
 
     .custom-station-pin.marker-lpg { border-color: #d97706; background: #fffbeb; }
     .custom-station-pin.marker-lpg:hover { background: #fef3c7; }
     .custom-station-pin.marker-lpg::after { border-top-color: #fffbeb; }
     .custom-station-pin.marker-lpg:not(.best-price)::before { border-top-color: #d97706; }
     .custom-station-pin.marker-lpg i { color: #d97706; }
+    .custom-station-pin.marker-lpg .pin-brand-badge { background: #d97706; }
 
     /* 지면 앵커 도트 (정확한 위치점) */
     .anchor-dot {
@@ -1244,6 +1269,11 @@
       }
       .custom-station-pin i {
         font-size: 13.5px;
+      }
+      .custom-station-pin .pin-brand-badge {
+        font-size: 10.5px;
+        padding: 2px 6px;
+        border-radius: 7px;
       }
       .custom-station-pin .station-name {
         font-size: 13.5px;
@@ -3018,6 +3048,28 @@
     return st.fuel.gasoline || st.fuel.lpg;
   }
 
+  function getBrandShort(brand, type) {
+    if (type === 'lpg') return 'LPG';
+    const b = String(brand || '');
+    if (b.includes('SK')) return 'SK';
+    if (b.includes('GS')) return 'GS';
+    if (b.includes('현대')) return '현대';
+    if (b.includes('S-OIL') || b.includes('에쓰오일')) return 'S-OIL';
+    if (b.includes('알뜰')) return '알뜰';
+    return '기타';
+  }
+
+  function getBrandColor(brand, type) {
+    if (type === 'lpg') return '#d97706';
+    const b = String(brand || '');
+    if (b.includes('SK')) return '#ea002c';
+    if (b.includes('GS')) return '#007a87';
+    if (b.includes('현대')) return '#0066b2';
+    if (b.includes('S-OIL') || b.includes('에쓰오일')) return '#008542';
+    if (b.includes('알뜰')) return '#ea580c';
+    return '#475569';
+  }
+
   function getFilteredStations() {
     if (currentFuel === 'candidates') {
       return candidateStations;
@@ -3028,8 +3080,8 @@
       id: c.id,
       name: c.name,
       brand: c.brand,
-      brandShort: c.brand ? c.brand.slice(0, 2) : '시민',
-      brandColor: '#059669',
+      brandShort: getBrandShort(c.brand, c.type),
+      brandColor: getBrandColor(c.brand, c.type),
       lawName: c.name + ' (시민검증 정식등록)',
       type: c.type || 'oil',
       addr: c.addr,
@@ -3179,11 +3231,15 @@
 
     list.forEach(st => {
       const isLpg = st.type === 'lpg';
-      let brandClass = 'brand-hyundai';
-      if (st.brand.includes('SK')) brandClass = 'brand-sk';
-      else if (st.brand.includes('GS')) brandClass = 'brand-gs';
-      else if (st.brand.includes('S-OIL')) brandClass = 'brand-soil';
-      else if (st.brand.includes('알뜰')) brandClass = 'brand-alttul';
+      const brandStr = String(st.brand || '');
+      let brandClass = 'brand-etc';
+      if (brandStr.includes('SK')) brandClass = 'brand-sk';
+      else if (brandStr.includes('GS')) brandClass = 'brand-gs';
+      else if (brandStr.includes('현대')) brandClass = 'brand-hyundai';
+      else if (brandStr.includes('S-OIL') || brandStr.includes('에쓰오일')) brandClass = 'brand-soil';
+      else if (brandStr.includes('알뜰')) brandClass = 'brand-alttul';
+
+      const pinBrandLabel = isLpg ? 'LPG' : (st.brandShort || getBrandShort(st.brand, st.type));
 
       const price = getStationPrice(st);
       const isBest = price && price === minPrice;
@@ -3208,10 +3264,10 @@
       // 위치 오류 제보가 있을 때 핀에 주의 표시
       const locWarnPin = loc.locWrong > 0 ? `<span class="pin-loc-warn-badge" title="위치 오류 제보 ${loc.locWrong}건">⚠️위치</span>` : '';
 
-      // 마커 HTML: 주유소 이름 + 유가 + 최저가(있을시) + 순위 동그라미 + 위치 주의 뱃지
+      // 마커 HTML: 브랜드/LPG 뱃지 + 주유소 이름 + 유가 + 최저가(있을시) + 순위 동그라미 + 위치 주의 뱃지
       const markerHtml = `
         <div class="custom-station-pin ${brandClass} ${isLpg ? 'marker-lpg' : ''} ${isBest ? 'best-price' : ''}">
-          <i class="fa-solid fa-${isLpg ? 'fire-flame-simple' : 'gas-pump'}"></i>
+          <span class="pin-brand-badge">${escapeHtml(pinBrandLabel)}</span>
           <span class="station-name">${st.name}</span>
           <span class="price-val ${priceClass}">${price ? price.toLocaleString() + '원' : '-'}</span>
           ${isBest ? '<span class="best-badge">최저가</span>' : ''}
